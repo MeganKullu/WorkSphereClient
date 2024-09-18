@@ -11,3 +11,12 @@ interface FormData {
   interface SignupProps {
     onSubmit: SubmitHandler<FormData>;
   }
+
+  interface LoginProps {
+    onSubmit: SubmitHandler<LoginFormData>;
+  }
+
+  interface LoginFormData {
+    phone: string;
+    password: string;
+  }

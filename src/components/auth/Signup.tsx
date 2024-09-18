@@ -1,10 +1,14 @@
 "use client";
 
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useState } from "react";
+
+//add remember me and logo
+//check on the password eye show password
 
 const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -92,7 +96,7 @@ const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
         )}
 
         <input
-          type="password"
+          type={showPassword ? "text" : "password"}
           {...register("password", {
             required: true,
             minLength: 8,
@@ -102,6 +106,14 @@ const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
           placeholder="Password"
           className="bg-[#cdd5ea] rounded-full h-12 w-full mb-3 text-sm px-5 py-2 focus:border-[#a1b2d8] text-black"
         />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-black"
+        >
+          {showPassword ? "Hide" : "Show"}
+        </button>
+
         {errors.password && (
           <p className="text-red-500 text-xs ml-2 -mt-3 mb-1">
             Password must be at least 8 characters long and include a number and

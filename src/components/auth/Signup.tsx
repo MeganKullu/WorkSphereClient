@@ -4,7 +4,6 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { useState } from "react";
 
 const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
-
   const [loading, setLoading] = useState(false);
 
   const {
@@ -28,31 +27,39 @@ const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
         <p className="text-2xl font-extrabold mt-2 mb-6 text-black text-center">
           Sign Up to WorkSphere
         </p>
-        <div className="flex gap-4 w-full mb-3">
-          <input
-            type="text"
-            {...register("firstName", { required: true })}
-            placeholder="First name"
-            className="basis-1/2 bg-[#e8ebf6] rounded-full h-12 w-full text-sm px-5 py-2 focus:border-[#a1b2d8] text-black"
-          />
-          {errors.firstName && (
-            <p className="text-red-500 text-xs ml-2 -mt-3 mb-1">
-              First name is required
-            </p>
-          )}
+        <div className="flex gap-4 w-full mb-3 h-full">
+          <div className="flex flex-col h-full">
+            <div className="h-12">
+              <input
+                type="text"
+                {...register("firstName", { required: true })}
+                placeholder="First name"
+                className="basis-1/2 bg-[#e8ebf6] rounded-full h-full w-full text-sm px-5 py-2 focus:border-[#a1b2d8] text-black"
+              />
+            </div>
+            {errors.firstName && (
+              <p className="text-red-500 text-xs ml-2 mb-1">
+                First name is required
+              </p>
+            )}
+          </div>
 
-          <input
-            type="text"
-            {...register("lastName", { required: true })}
-            placeholder="Last name"
-            className="basis-1/2 bg-[#e8ebf6] rounded-full h-12 w-full text-sm px-5 py-2 focus:border-[#a1b2d8] text-black"
-          />
+          <div className="flex flex-col h-full">
+            <div className="h-12">
+              <input
+                type="text"
+                {...register("lastName", { required: true })}
+                placeholder="Last name"
+                className="basis-1/2 bg-[#e8ebf6] rounded-full h-full w-full text-sm px-5 py-2 focus:border-[#a1b2d8] text-black"
+              />
+            </div>
 
-          {errors.lastName && (
-            <p className="text-red-500 text-xs ml-2 -mt-3 mb-1">
-              Last name is required.
-            </p>
-          )}
+            {errors.lastName && (
+              <p className="text-red-500 text-xs ml-2  mb-1">
+                Last name is required.
+              </p>
+            )}
+          </div>
         </div>
         <input
           type="email"
@@ -64,7 +71,7 @@ const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
           className="bg-[#cdd5ea] rounded-full h-12 w-full mb-3 text-sm px-5 py-2 focus:border-[#a1b2d8] text-black"
         />
         {errors.email && (
-          <p className="text-red-500 text-xs ml-2 -mt-3 mb-1">
+          <p className="text-red-500 text-xs ml-2 -mt-3 mb-2">
             Please enter a valid email address.
           </p>
         )}
@@ -119,10 +126,26 @@ const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
           type="submit"
           className="bg-[#395290] hover:bg-[#6e89c2] rounded-full h-12 w-full mb-3 text-sm px-5 py-2 font-bold flex justify-center items-center"
         >
-           {loading ? (
-            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          {loading ? (
+            <svg
+              className="animate-spin h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
           ) : (
             "Sign Up"

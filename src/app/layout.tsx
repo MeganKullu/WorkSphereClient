@@ -1,36 +1,34 @@
-import '@/styles/globals.css';
+import "@/styles/globals.css";
+import type { Metadata } from "next";
+import { Manrope } from "next/font/google";
 
-import { Inter } from 'next/font/google';
+const manrope = Manrope({ subsets: ["latin"] });
 
-import MainFooter from '@/components/Footer';
-import { QueryProvider } from '@/providers/query';
-import type { ChildrenProps } from '@/types';
-
-export const metadata = {
-  description:
-    'A highly opinionated and complete starter for Next.js projects ready to production. Includes Typescript, Styled Components, Prettier, ESLint, Husky, SEO, and more.',
-  keywords:
-    'next, starter, typescript, tailwind css, prettier, eslint, husky, seo',
-  title: 'Next Starter',
+export const metadata: Metadata = {
+	title: {
+		template: "%s | Worksphere",
+		default: "Worksphere",
+	},
+	description: "Simplify your work life with Worksphere",
 };
 
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: false,
-});
-
-export default async function RootLayout({ children }: ChildrenProps) {
-  return (
-    <html lang="en">
-      <body
-        className={`${inter.className} h-full flex flex-col justify-between`}
-      >
-        <section className="flex-1">
-          <QueryProvider>{children}</QueryProvider>
-        </section>
-        <MainFooter />
-      </body>
-    </html>
-  );
+export default function RootLayout({
+	children,
+}: Readonly<{
+	children: React.ReactNode;
+}>) {
+	return (
+		<html lang="en">
+			<head>
+				<link rel="preconnect" href="https://fonts.googleapis.com" />
+				<link
+					rel="preconnect"
+					href="https://fonts.gstatic.com"
+					crossOrigin="anonymous"
+				/>
+			</head>
+      
+			<body className={manrope.className}>{children}</body>
+		</html>
+	);
 }

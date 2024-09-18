@@ -7,3 +7,7 @@ interface FormData {
     role: string;
     phone: string;
   }
+
+  interface SignupProps {
+    onSubmit: SubmitHandler<FormData>;
+  }

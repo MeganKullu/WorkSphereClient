@@ -6,9 +6,7 @@ import { useForm } from "react-hook-form";
 //add show password feature here
 
 const Login: React.FC<LoginProps>= ({ onSubmit }) => {
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -52,7 +50,6 @@ const Login: React.FC<LoginProps>= ({ onSubmit }) => {
           id="email"
           {...register("password", { required: true })}
           placeholder="Password"
-          value={password}
           className="bg-[#e8ebf6] rounded-full h-12 w-full mb-3 text-sm px-5 py-2 focus:border-[#a1b2d8] text-black"
         />
         <button

@@ -5,6 +5,8 @@ import { useState } from "react";
 
 //add remember me and logo
 //check on the password eye show password
+//we need to encrypt the password
+//add toast for successful signup and login
 
 const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
   const [loading, setLoading] = useState(false);
@@ -126,7 +128,7 @@ const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
           {...register("role", { required: true })}
         >
           <option value="">Select Role</option>
-          <option value="Intern">Intern/ Attachee</option>
+          <option value="USER">Intern/ Attachee</option>
         </select>
         {errors.role && (
           <p className="text-red-500 text-xs ml-2 -mt-3 mb-1">

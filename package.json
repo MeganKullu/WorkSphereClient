@@ -19,6 +19,7 @@
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix --cache-location ./node_modules/.cache/.eslintcache"
   },
   "dependencies": {
+    "@heroicons/vue": "^2.1.5",
     "@next-auth/prisma-adapter": "^1.0.7",
     "@next/bundle-analyzer": "^14.2.5",
     "@prisma/client": "^5.18.0",

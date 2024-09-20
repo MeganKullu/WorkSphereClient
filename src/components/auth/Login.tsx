@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 
 //add show password feature here
+//add a remember password feature we will use loacl storage in json web token
+//we need to encrypt the password
 
 const Login: React.FC<LoginProps>= ({ onSubmit }) => {
   const [loading, setLoading] = useState(false);
@@ -54,7 +56,7 @@ const Login: React.FC<LoginProps>= ({ onSubmit }) => {
         />
         <button
           type="submit"
-          className="bg-[#395290] hover:bg-[#6e89c2] rounded-full h-12 w-full mb-3 text-sm px-5 py-2 font-bold "
+          className="bg-[#395290] hover:bg-[#6e89c2] rounded-full h-12 w-full mb-3 text-sm px-5 py-2 font-bold flex justify-center items-center"
         >
           {loading ? (
             <svg

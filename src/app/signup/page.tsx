@@ -18,7 +18,7 @@ const onSubmit = async (data: FormData) => {
   if ( response.status === 201 ) {
     // we push the user to the dashboard
     // add toast for successful signup
-    redirect('/dashboard') 
+    redirect('/dashboard/chat') 
   }
 }
 

@@ -19,7 +19,7 @@ const page = () => {
     if(response.status === 200){
       // we push the user to the dashboard
       // add toast for successful login
-      redirect('/dashboard') 
+      redirect('/dashboard/chat') 
     } else if (response.status === 401) {
       // add toast for unsuccessful login
       console.log('unsuccessful login')

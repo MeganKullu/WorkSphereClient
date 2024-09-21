@@ -9,8 +9,8 @@ import {
 
 const NavigationButtons = () => {
   return (
-    <div className="flex flex-col w-full h-full justify-start items-center">
-      <div className="flex-1">
+    <div className="flex flex-col w-full h-full">
+      <div className="flex-1 flex-col w-full justify-center items-center">
         <Link
           href="/dashboard/chat"
           className="mb-4 hover:bg-[#cfcece] px-4 py-2 rounded-xl"

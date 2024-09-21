@@ -34,12 +34,12 @@ const Chats = () => {
   return (
     <>
       {/* should be scrollable too */}
-      {dummyChats.map((chat, index) => (
+      {dummyChats.map((chat) => (
         <Link
           key={chat.id}
           href={`/dashboard/chat/${chat.id}`}
-          className={`rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 ${
-            pathname === `/chat/${chat.id}`
+          className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 ${
+            pathname === `dashboard/chat/${chat.id}`
               ? "bg-[#d5dbe7]"
               : "hover:bg-[#d5dbe7]"
           }`}

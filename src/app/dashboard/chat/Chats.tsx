@@ -28,7 +28,6 @@ const dummyChats = [
 ];
 
 const Chats = () => {
-
   const pathname = usePathname();
 
   return (
@@ -37,7 +36,10 @@ const Chats = () => {
       {dummyChats.map((chat) => (
         <Link
           key={chat.id}
-          href={`/dashboard/chat/${chat.id}`}
+          href={{
+            pathname: `/dashboard/chat/${chat.id}`,
+            query: { name: chat.name },
+          }}
           className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 ${
             pathname === `dashboard/chat/${chat.id}`
               ? "bg-[#d5dbe7]"
@@ -51,11 +53,11 @@ const Chats = () => {
             {/* name of the use/group goes here */}
             <div className="flex justify-between mb-1">
               {/* here the time stamp */}
-              <p className="text-base font-semibold text-black">{chat.name}</p>
-              <p className="text-gray-400">{chat.timestamp}</p>
+              <p className="text-sm font-semibold text-black">{chat.name}</p>
+              <p className="text-gray-400 text-xs ">{chat.timestamp}</p>
             </div>
             {/* here we truncate the new message */}
-            <p>{chat.lastMessage}</p>
+            <p className="line-clamp-1 text-sm text-black">{chat.lastMessage}</p>
           </div>
         </Link>
       ))}

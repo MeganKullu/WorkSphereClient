@@ -3,7 +3,7 @@ const Search = () => {
     <input
       type="text"
       placeholder="Search..."
-      className="w-full px-5 py-3 rounded-lg bg-[#cdd5ea] mt-2 text-sm"
+      className="w-full px-5 py-3 rounded-lg bg-[#cdd5ea] my-2 text-sm"
     />
   );
 };

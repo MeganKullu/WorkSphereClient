@@ -5,6 +5,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 
 const dummyChats = [
   {
@@ -28,6 +29,19 @@ const dummyChats = [
 ];
 
 const Chats = () => {
+  useEffect(() => {
+    const getAllUsers = async () => {
+      const response = await fetch(`http://192.168.0.15:3002/api/users/`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log("all users", response);
+    };
+
+    getAllUsers();
+  });
   const pathname = usePathname();
 
   return (
@@ -57,7 +71,9 @@ const Chats = () => {
               <p className="text-gray-400 text-xs ">{chat.timestamp}</p>
             </div>
             {/* here we truncate the new message */}
-            <p className="line-clamp-1 text-sm text-black">{chat.lastMessage}</p>
+            <p className="line-clamp-1 text-sm text-black">
+              {chat.lastMessage}
+            </p>
           </div>
         </Link>
       ))}

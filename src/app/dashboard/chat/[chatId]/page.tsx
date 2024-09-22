@@ -2,6 +2,7 @@
 "use client";
 import React from "react";
 import { useSearchParams } from "next/navigation";
+import { HiOutlineLink, HiOutlineArrowCircleRight } from "react-icons/hi";
 
 const ChatDetail = ({ params }: { params: { chatId: string } }) => {
   const chatId = params.chatId;
@@ -43,13 +44,13 @@ const ChatDetail = ({ params }: { params: { chatId: string } }) => {
 
   return (
     <div className="flex h-full w-full gap-2 xl:gap-4">
-      <div className="w-2/3 h-full bg-[#e8ebf6] rounded-r-[30px] py-4 px-6">
-        <div>
+      <div className="w-2/3 h-full bg-[#e8ebf6] rounded-r-[30px] py-4 px-6 flex flex-col">
+        <div className="flex-1">
           <div className="flex justify-between">
             <p className="text-black text-2xl font-semibold">{name}</p>
             <p>{chatId}</p>
           </div>
-          <div className="mt-4 space-y-4">
+          <div className="flex-grow mt-4 space-y-4 overflow-y-auto">
             {dummyMessages.map((message) => (
               <div
                 key={message.id}
@@ -71,6 +72,20 @@ const ChatDetail = ({ params }: { params: { chatId: string } }) => {
               </div>
             ))}
           </div>
+        </div>
+        <div className="mt-auto relative">
+          <input
+            type="text"
+            placeholder="Type a message..."
+            className="w-full pl-10 py-3 bg-[#d5dbe7] rounded-lg text-sm pr-10 text-black"
+          />
+          <button className="absolute left-3 top-1/2 transform -translate-y-1/2 ">
+            <HiOutlineLink className="text-black size-6"/>
+          </button>
+          {/* this will be the button to send the data */}
+          <button className="absolute right-3 top-1/2 transform -translate-y-1/2 ">
+            <HiOutlineArrowCircleRight className="text-black size-6"/>
+          </button>
         </div>
       </div>
       <div className="w-1/3 h-full flex flex-col gap-2">

@@ -1,7 +1,8 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { UserContext } from "@/contexts/user/UserContext";
 
 //add remember me and logo
 //check on the password eye show password
@@ -11,6 +12,7 @@ import { useState } from "react";
 const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { setUser, user } = useContext(UserContext);
 
   const {
     register,
@@ -20,7 +22,9 @@ const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
 
   const handleFormSubmit = async (data: FormData) => {
     setLoading(true);
-    await onSubmit(data);
+    const userId = await onSubmit(data);
+    console.log("userId", userId);
+    setUser(userId);
     setLoading(false);
   };
 

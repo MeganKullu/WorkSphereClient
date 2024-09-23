@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from "react";
 
-const Search = () => {
+interface SearchProps {
+  handleSearch: (query: string) => Promise<UserSearch[] | undefined>;
+}
+
+const Search = ({ handleSearch } : SearchProps) => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<UserSearch[]>([]);
 
@@ -10,32 +14,16 @@ const Search = () => {
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (query) {
-        handleSearch();
+        handleSearch(query).then((data) => {
+          if (data) {
+            setResults(data);
+          }
+        });
       }
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
   }, [query]);
-
-  const handleSearch = async () => {
-    // url not workin check issue
-    try {
-      const response = await fetch(
-        `${process.env.NGROK_URL}/api/users/search?q=${query}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log("searchURL", response);
-      const data: UserSearch[] = await response.json();
-      setResults(data);
-    } catch (error) {
-      console.error("Error fetching search results:", error);
-    }
-  };
 
   return (
     <div>

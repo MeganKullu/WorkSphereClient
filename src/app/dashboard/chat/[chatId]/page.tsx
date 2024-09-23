@@ -1,41 +1,54 @@
 // pages/dashboard/chat/[chatId].tsx
 "use client";
 import React from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { HiOutlineLink, HiOutlineArrowCircleRight } from "react-icons/hi";
+import io from "socket.io-client";
 
-const ChatDetail = ({ params }: { params: { chatId: string } }) => {
+const ChatDetail = ({ params }: { params: { chatId: string }}) => {
   const chatId = params.chatId;
   const searchParams = useSearchParams();
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const socket = io("https://a187-197-237-117-23.ngrok-free.app/");
 
   let name = searchParams.get("name");
 
-  const dummyMessages = [
-    {
-      id: 1,
-      sender: "Alice",
-      text: "Hey Bob, how are you?",
-      timestamp: "10:00 AM",
-    },
-    {
-      id: 2,
-      sender: "Bob",
-      text: "I'm good, Alice. How about you?",
-      timestamp: "10:02 AM",
-    },
-    {
-      id: 3,
-      sender: "Alice",
-      text: "I'm doing well, thanks! Have you seen the latest design?",
-      timestamp: "10:05 AM",
-    },
-    {
-      id: 4,
-      sender: "Bob",
-      text: "Yes, I have. It looks great!",
-      timestamp: "10:07 AM",
-    },
-  ];
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const response = await fetch(
+        `https://a187-197-237-117-23.ngrok-free.app/api/messages/users/:${senderId}/:${receiverId}`
+      );
+      const data = await response.json();
+      setMessages(data);
+    };
+
+    fetchMessages();
+
+    socket.emit("join_room", chatId);
+
+    socket.on("receive_message", (message) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
+
+    return () => {
+      socket.emit("leave_room", chatId);
+      socket.disconnect();
+    };
+  }, [chatId]);
+
+  const sendMessage = () => {
+    const messageData = {
+      senderId, // will be the id of the current logged in user
+      receiverId, // will be the id of the receiver
+      message: newMessage,
+      cohortId: null, // Replace with actual cohort ID if applicable
+    };
+
+    socket.emit("send_message", messageData);
+    setNewMessage("");
+  };
 
   // Fetch chat data based on chatId
   // For demonstration, we'll use a placeholder
@@ -51,7 +64,7 @@ const ChatDetail = ({ params }: { params: { chatId: string } }) => {
             <p>{chatId}</p>
           </div>
           <div className="flex-grow mt-4 space-y-4 overflow-y-auto">
-            {dummyMessages.map((message) => (
+            {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${
@@ -65,9 +78,9 @@ const ChatDetail = ({ params }: { params: { chatId: string } }) => {
                       : "bg-[#515282] text-white"
                   }`}
                 >
-                  <p className="font-bold text-sm">{message.sender}</p>
-                  <p className="text-sm">{message.text}</p>
-                  <p className="text-gray-400 text-sm">{message.timestamp}</p>
+                  <p className="font-bold text-sm"></p>
+                  <p className="text-sm"></p>
+                  <p className="text-gray-400 text-sm"></p>
                 </div>
               </div>
             ))}
@@ -77,14 +90,17 @@ const ChatDetail = ({ params }: { params: { chatId: string } }) => {
           <input
             type="text"
             placeholder="Type a message..."
+            onChange={(e) => setNewMessage(e.target.value)}
             className="w-full pl-10 py-3 bg-[#d5dbe7] rounded-lg text-sm pr-10 text-black"
           />
           <button className="absolute left-3 top-1/2 transform -translate-y-1/2 ">
-            <HiOutlineLink className="text-black size-6"/>
+            <HiOutlineLink className="text-black size-6" />
           </button>
           {/* this will be the button to send the data */}
-          <button className="absolute right-3 top-1/2 transform -translate-y-1/2 ">
-            <HiOutlineArrowCircleRight className="text-black size-6"/>
+          <button 
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 "
+          onClick={sendMessage}>
+            <HiOutlineArrowCircleRight className="text-black size-6" />
           </button>
         </div>
       </div>

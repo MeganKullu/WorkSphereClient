@@ -14,12 +14,20 @@ const onSubmit = async (data: FormData) => {
     body: JSON.stringify({ firstName, lastName, email, password, role, phone }),
   });
 
-  console.log(response);
+  const signupData = await response.json();
+
+
   if ( response.status === 201 ) {
     // we push the user to the dashboard
     // add toast for successful signup
-    redirect('/dashboard/chat') 
+    setTimeout(() => {
+      redirect('/dashboard/chat');
+    }, 0)
+    
   }
+  console.log("id", signupData.newUser.id);
+  return signupData.newUser.id;
+  
 }
 
 const page = () => {

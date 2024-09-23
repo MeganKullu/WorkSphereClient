@@ -6,10 +6,10 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
 
   //here we will handle getting all the current active chats and the search
 
-  const getAllUsers = async (currentUserId: string) => {
+  const getAllUsers = async (currentUserId: string | null) => {
     "use server";
 
-    const response = await fetch(`https://a187-197-237-117-23.ngrok-free.app/api/users/?currentUserId=${currentUserId}`, {
+    const response = await fetch(`https://a25b-105-160-57-244.ngrok-free.app/api/users/?currentUserId=${currentUserId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -26,7 +26,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
 
     try {
       const response = await fetch(
-        `https://a187-197-237-117-23.ngrok-free.app/api/users/search?q=${query}`,
+        `https://a25b-105-160-57-244.ngrok-free.app/api/users/search?q=${query}`,
         {
           method: "GET",
           headers: {

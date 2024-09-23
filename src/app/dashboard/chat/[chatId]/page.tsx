@@ -6,14 +6,16 @@ import { useSearchParams } from "next/navigation";
 import { HiOutlineLink, HiOutlineArrowCircleRight } from "react-icons/hi";
 import io from "socket.io-client";
 
-const ChatDetail = ({ params }: { params: { chatId: string }}) => {
+const ChatDetail = ({ params }: { params: { chatId: string } }) => {
   const chatId = params.chatId;
   const searchParams = useSearchParams();
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const socket = io("https://a187-197-237-117-23.ngrok-free.app/");
 
   let name = searchParams.get("name");
+  let senderId = searchParams.get("senderId");
+  let receiverId = searchParams.get("receiverId");
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -36,7 +38,7 @@ const ChatDetail = ({ params }: { params: { chatId: string }}) => {
       socket.emit("leave_room", chatId);
       socket.disconnect();
     };
-  }, [chatId]);
+  }, [chatId, senderId, receiverId]);
 
   const sendMessage = () => {
     const messageData = {
@@ -48,10 +50,29 @@ const ChatDetail = ({ params }: { params: { chatId: string }}) => {
 
     socket.emit("send_message", messageData);
     setNewMessage("");
-  };
+  }; 
 
-  // Fetch chat data based on chatId
-  // For demonstration, we'll use a placeholder
+  //file upload 
+
+  // const sendFile = (file, senderId, receiverId, cohortId) => {
+  //   const reader = new FileReader();
+  
+  //   reader.onload = (event) => {
+  //     const fileBuffer = event.target.result; // Get file as binary buffer
+  
+  //     socket.emit('send_file', {
+  //       senderId,
+  //       receiverId,
+  //       cohortId,
+  //       fileBuffer,
+  //       fileName: file.name,
+  //       fileType: file.type,
+  //     });
+  //   };
+  
+  //   reader.readAsArrayBuffer(file); // Read file as ArrayBuffer
+  // };
+
   // we will call the db with the chat data here and map over
   // here we will also add the chat details
 
@@ -68,19 +89,21 @@ const ChatDetail = ({ params }: { params: { chatId: string }}) => {
               <div
                 key={message.id}
                 className={`flex ${
-                  message.sender === "Alice" ? "justify-start" : "justify-end"
+                  message.senderId === senderId
+                    ? "justify-end"
+                    : "justify-start"
                 }`}
               >
                 <div
                   className={`p-3 rounded-lg max-w-xs ${
-                    message.sender === "Alice"
+                    message.receiverId === senderId
                       ? "bg-[#d5dbe7] text-black"
                       : "bg-[#515282] text-white"
                   }`}
                 >
-                  <p className="font-bold text-sm"></p>
-                  <p className="text-sm"></p>
-                  <p className="text-gray-400 text-sm"></p>
+                  <p className="font-bold text-sm">{}</p>
+                  <p className="text-sm">{message.content}</p>
+                  <p className="text-gray-400 text-sm">{message.sendAt}</p>
                 </div>
               </div>
             ))}
@@ -95,11 +118,17 @@ const ChatDetail = ({ params }: { params: { chatId: string }}) => {
           />
           <button className="absolute left-3 top-1/2 transform -translate-y-1/2 ">
             <HiOutlineLink className="text-black size-6" />
+            <input
+              type="file"
+              // onChange={handleFileUpload}
+              className="flex "
+            />
           </button>
           {/* this will be the button to send the data */}
-          <button 
-          className="absolute right-3 top-1/2 transform -translate-y-1/2 "
-          onClick={sendMessage}>
+          <button
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 "
+            onClick={sendMessage}
+          >
             <HiOutlineArrowCircleRight className="text-black size-6" />
           </button>
         </div>

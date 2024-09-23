@@ -1,5 +1,4 @@
 
-import ChatDetail from "./[chatId]/page";
 
 export default function page({ params }: { params: string }) {
   return (

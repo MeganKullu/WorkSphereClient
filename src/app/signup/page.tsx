@@ -22,12 +22,11 @@ const onSubmit = async (data: FormData) => {
     // add toast for successful signup
     setTimeout(() => {
       redirect('/dashboard/chat');
-    }, 0)
+    }, 1)
     
   }
   console.log("id", signupData.newUser.id);
   return signupData.newUser.id;
-  
 }
 
 const page = () => {

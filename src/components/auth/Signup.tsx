@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { UserContext } from "@/contexts/user/UserContext";
 
 //add remember me and logo
@@ -23,7 +23,6 @@ const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
   const handleFormSubmit = async (data: FormData) => {
     setLoading(true);
     const userId = await onSubmit(data);
-    console.log("userId", userId);
     setUser(userId);
     setLoading(false);
   };

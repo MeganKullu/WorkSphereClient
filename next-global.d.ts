@@ -40,3 +40,12 @@ interface Chat {
   role: string;
   phone: string;
 }
+
+interface Message {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  sendAt: string;
+}
+

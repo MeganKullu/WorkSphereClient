@@ -10,17 +10,16 @@ const ChatRoom = ({
   receiverId,
   fetchMessages,
   roomId,
+  name,
 }: {
   senderId: string | null;
   receiverId: string | null;
-  fetchMessages: ({
-    senderId,
-    receiverId,
-  }: {
-    senderId: string | null;
-    receiverId: string | null;
-  }) => Promise<any>;
+  fetchMessages: (
+    senderId : string | null,
+    receiverId : string | null,
+  ) => Promise<any>;
   roomId: string | null;
+  name: string | null,
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -29,7 +28,7 @@ const ChatRoom = ({
   useEffect(() => {
 
     const fetchMessageData = async() => {
-       const messages = await fetchMessages();
+       const messages = await fetchMessages(senderId, receiverId);
        setMessages(messages);
     }
     

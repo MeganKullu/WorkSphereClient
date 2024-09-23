@@ -17,13 +17,9 @@ const ChatDetail = ({ params }: { params: { chatId: string } }) => {
   let senderId = encodedSenderId ? atob(encodedSenderId) : null;
   let receiverId = encodedReceiverId ? atob(encodedReceiverId) : null;
 
-  const fetchMessages = async ({
-    senderId,
-    receiverId,
-  }: {
-    senderId: string;
-    receiverId: string;
-  }) => {
+  const fetchMessages = async (
+    senderId: string | null, receiverId: string | null
+  ) => {
     "use server";
 
     try {

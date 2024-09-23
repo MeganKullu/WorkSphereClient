@@ -1,12 +1,11 @@
 import Signup from "@/components/auth/Signup"
-import { redirect } from 'next/navigation';
 
 
 const onSubmit = async (data: FormData) => {
   // we send the data to the back end
   "use server";
   const { firstName, lastName, email, password, role, phone } = data;
-  const response = await fetch(`${process.env.NGROK_URL}/api/auth/signup`, {
+  const response = await fetch(`${process.env.NGROK_URL}api/auth/signup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

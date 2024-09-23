@@ -8,7 +8,7 @@ const page = () => {
     //we will also set the auth token and validate it on the dashboard page
     "use server";
     const { phone, password } = data;
-    const response =   await fetch(`${process.env.NGROK_URL}/api/auth/login`, {
+    const response =   await fetch(`${process.env.NGROK_URL}api/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

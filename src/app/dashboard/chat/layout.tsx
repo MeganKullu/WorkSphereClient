@@ -9,7 +9,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
   const getAllUsers = async (currentUserId: string | null) => {
     "use server";
 
-    const response = await fetch(`https://a25b-105-160-57-244.ngrok-free.app/api/users/?currentUserId=${currentUserId}`, {
+    const response = await fetch(`${process.env.NGROK_URL}api/users/?currentUserId=${currentUserId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

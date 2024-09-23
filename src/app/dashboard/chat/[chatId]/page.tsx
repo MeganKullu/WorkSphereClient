@@ -1,30 +1,33 @@
 // pages/dashboard/chat/[chatId].tsx
 
 import React from "react";
-import { useSearchParams } from "next/navigation";
 import ChatRoom from "./ChatRoom";
+import { cookies } from "next/headers";
 
-const ChatDetail = ({ params }: { params: { chatId: string } }) => {
-  const chatId = params.chatId;
-  const searchParams = useSearchParams();
-  let name = searchParams.get("name");
-  let encodedSenderId = searchParams.get("senderId");
-  let encodedReceiverId = searchParams.get("receiverId");
-  let roomId = searchParams.get("roomId");
-
+const ChatDetail = ({ params }: { params: { roomId: string } }) => {
+  
+  const cookieStore = cookies();
+  const name = cookieStore.get('chatName')?.value;
+  const encodedSenderId = cookieStore.get('senderId')?.value;
+  const encodedReceiverId = cookieStore.get('receiverId')?.value;
+  const roomId = cookieStore.get("roomId")?.value;
+ 
 
   // Decode the Base64 encoded senderId and receiverId
   let senderId = encodedSenderId ? atob(encodedSenderId) : null;
   let receiverId = encodedReceiverId ? atob(encodedReceiverId) : null;
 
   const fetchMessages = async (
-    senderId: string | null, receiverId: string | null
+    senderId: string | null,
+    receiverId: string | null
   ) => {
     "use server";
 
     try {
+      console.log("fetchfnSender", senderId);
+      console.log("fetchfnReceiver", receiverId);
       const response = await fetch(
-        `https://a187-197-237-117-23.ngrok-free.app/api/messages/users/:${senderId}/:${receiverId}`
+        `https://3266-197-237-117-23.ngrok-free.app/api/messages/users/${senderId}/${receiverId}`
       );
 
       const data = await response.json();

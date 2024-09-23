@@ -15,31 +15,48 @@ const ChatRoom = ({
   senderId: string | null;
   receiverId: string | null;
   fetchMessages: (
-    senderId : string | null,
-    receiverId : string | null,
+    senderId: string | null,
+    receiverId: string | null
   ) => Promise<any>;
-  roomId: string | null;
-  name: string | null,
+  roomId: string | null | undefined;
+  name: string | null | undefined;
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const socket = io("https://a187-197-237-117-23.ngrok-free.app/");
+
+  const socket = io(`https://3266-197-237-117-23.ngrok-free.app/`, {
+    extraHeaders: {
+      "ngrok-skip-browser-warning": "true",
+    },
+  });
 
   useEffect(() => {
+    const room_id = roomId;
+    const sender_id = senderId;
+    const receiver_id = receiverId;
 
-    const fetchMessageData = async() => {
-       const messages = await fetchMessages(senderId, receiverId);
-       setMessages(messages);
-    }
-    
-    fetchMessageData();
-   
-    socket.emit("join_room", roomId);
+    console.log("roomId", room_id);
+    console.log("senderId",sender_id );
+    console.log("receiverId", receiver_id);
+
+    const fetchMessageData = async (senderId: string | null, receiverId: string | null) => {
+      try {
+        const messages = await fetchMessages(senderId, receiverId);
+        setMessages(messages || []);
+      } catch (error) {
+        console.error("Failed to fetch messages:", error);
+        setMessages([]);
+      }
+    };
+
+    fetchMessageData(sender_id, receiver_id);
+
+    socket.emit("join_room", room_id);
 
     socket.on("receive_message", (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
-  });
+  }, []);
   // here we will import the fetch function
 
   // fetchMessages();
@@ -64,28 +81,32 @@ const ChatRoom = ({
             <p>{roomId}</p>
           </div>
           <div className="flex-grow mt-4 space-y-4 overflow-y-auto">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.senderId === senderId
-                    ? "justify-end"
-                    : "justify-start"
-                }`}
-              >
+            {messages.length === 0 ? (
+              <p>No messages yet.</p>
+            ) : (
+              messages?.map((message) => (
                 <div
-                  className={`p-3 rounded-lg max-w-xs ${
-                    message.receiverId === senderId
-                      ? "bg-[#d5dbe7] text-black"
-                      : "bg-[#515282] text-white"
+                  key={message.id}
+                  className={`flex ${
+                    message.senderId === senderId
+                      ? "justify-end"
+                      : "justify-start"
                   }`}
                 >
-                  <p className="font-bold text-sm">{}</p>
-                  <p className="text-sm">{message.content}</p>
-                  <p className="text-gray-400 text-sm">{message.sendAt}</p>
+                  <div
+                    className={`p-3 rounded-lg max-w-xs ${
+                      message.receiverId === senderId
+                        ? "bg-[#d5dbe7] text-black"
+                        : "bg-[#515282] text-white"
+                    }`}
+                  >
+                    <p className="font-bold text-sm">{}</p>
+                    <p className="text-sm">{message.content}</p>
+                    <p className="text-gray-400 text-sm">{message.sendAt}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
         <div className="mt-auto relative">

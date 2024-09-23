@@ -64,6 +64,7 @@ const Chats = ({ getAllUsers }: ChatsProps) => {
                   name: chat.firstName,
                   senderId: encodedSenderId,
                   receiverId : encodedReceiverId,
+                  roomId,
                 },
               }}
               className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 ${

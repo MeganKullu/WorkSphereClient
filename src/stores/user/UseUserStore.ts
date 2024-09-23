@@ -6,7 +6,7 @@ interface UserState {
 }
 
 const useUserStore = create<UserState>((set: any) => ({
-  userId: localStorage.getItem("userId"),
+  userId: null,
   setUserId: (id: string) => {
     if (typeof window !== 'undefined') {
       // Only access localStorage in the browser

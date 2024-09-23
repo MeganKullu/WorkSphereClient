@@ -16,6 +16,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
       },
     });
     const data = await response.json();
+    console.log("getAllUsers", data);
 
     return data;
   }

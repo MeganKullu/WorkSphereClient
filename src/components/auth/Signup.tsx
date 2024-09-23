@@ -1,8 +1,9 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useState, useContext, useEffect } from "react";
-import { UserContext } from "@/contexts/user/UserContext";
+import { useState, useContext } from "react";
+import { useRouter } from "next/navigation";
+import useUserStore from "@/stores/user/UseUserStore";
 
 //add remember me and logo
 //check on the password eye show password
@@ -12,7 +13,8 @@ import { UserContext } from "@/contexts/user/UserContext";
 const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { setUser, user } = useContext(UserContext);
+  const setUserId = useUserStore((state: any) => state.setUserId);
+  const router = useRouter();
 
   const {
     register,
@@ -22,9 +24,9 @@ const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
 
   const handleFormSubmit = async (data: FormData) => {
     setLoading(true);
-    const userId = await onSubmit(data);
-    setUser(userId);
+    await onSubmit(data).then((userId: string) => setUserId(userId));
     setLoading(false);
+    router.push("/dashboard/chat");
   };
 
   return (

@@ -17,14 +17,14 @@ const onSubmit = async (data: FormData) => {
   const signupData = await response.json();
 
 
-  if ( response.status === 201 ) {
-    // we push the user to the dashboard
-    // add toast for successful signup
-    setTimeout(() => {
-      redirect('/dashboard/chat');
-    }, 1)
+  // if ( response.status === 201 ) {
+  //   // we push the user to the dashboard
+  //   // add toast for successful signup
+  //   setTimeout(() => {
+  //     redirect('/dashboard/chat');
+  //   }, 0)
     
-  }
+  // }
   console.log("id", signupData.newUser.id);
   return signupData.newUser.id;
 }

@@ -6,7 +6,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useContext } from "react";
-import { UserContext } from "@/contexts/user/UserContext";
+import useUserStore from "@/stores/user/UseUserStore";
 
 interface ChatsProps {
   getAllUsers: (currentUserId: string | null) => Promise<Chat[] | undefined>;
@@ -14,9 +14,10 @@ interface ChatsProps {
 
 const Chats = ({ getAllUsers }: ChatsProps) => {
   const [chats, setChats] = useState<Chat[]>([]);
-  const { user } = useContext(UserContext);
+  const userId = useUserStore((state) => state.userId);
 
-  const currentUserId = user;
+  const currentUserId = userId;
+  console.log("currentUserIdChatlayout",currentUserId);
 
   //generateTheRoomId
 

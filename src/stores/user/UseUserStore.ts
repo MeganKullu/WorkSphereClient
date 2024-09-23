@@ -6,8 +6,10 @@ interface UserState {
 }
 
 const useUserStore = create<UserState>((set: any) => ({
-  userId: null,
-  setUserId: (id: string) => set({ userId: id }),
+  userId: localStorage.getItem("userId"),
+  setUserId: (id: string) => {
+    localStorage.setItem("userId", id);
+    set({ userId: id })},
 }));
 
 export default useUserStore;

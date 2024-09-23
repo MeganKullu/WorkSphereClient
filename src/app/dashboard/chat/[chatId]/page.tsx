@@ -14,8 +14,12 @@ const ChatDetail = ({ params }: { params: { chatId: string } }) => {
   const socket = io("https://a187-197-237-117-23.ngrok-free.app/");
 
   let name = searchParams.get("name");
-  let senderId = searchParams.get("senderId");
-  let receiverId = searchParams.get("receiverId");
+  let encodedSenderId = searchParams.get("senderId");
+  let encodedReceiverId = searchParams.get("receiverId");
+
+  // Decode the Base64 encoded senderId and receiverId
+  let senderId = encodedSenderId ? atob(encodedSenderId) : null;
+  let receiverId = encodedReceiverId ? atob(encodedReceiverId) : null;
 
   useEffect(() => {
     const fetchMessages = async () => {

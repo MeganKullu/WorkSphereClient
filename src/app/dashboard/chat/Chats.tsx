@@ -19,6 +19,12 @@ const Chats = ({ getAllUsers }: ChatsProps) => {
   const currentUserId = userId;
   console.log("currentUserIdChatlayout",currentUserId);
 
+  // Utility function to encode IDs
+
+  const encodeId = (id: string | null) => {
+    return id ? Buffer.from(id).toString('base64') : '';
+  };
+
   //generateTheRoomId
 
   const generateRoomId = (userId1: string | null, userId2: string) => {
@@ -46,6 +52,9 @@ const Chats = ({ getAllUsers }: ChatsProps) => {
         chats.map((chat: any) => {
           const receiverId = chat.id;
           const roomId = generateRoomId(currentUserId, receiverId);
+          const encodedSenderId = encodeId(currentUserId);
+          const encodedReceiverId = encodeId(receiverId);
+
           return (
             <Link
               key={chat.id}
@@ -53,8 +62,8 @@ const Chats = ({ getAllUsers }: ChatsProps) => {
                 pathname: `/dashboard/chat/${roomId}`,
                 query: {
                   name: chat.firstName,
-                  senderId: currentUserId,
-                  receiverId,
+                  senderId: encodedSenderId,
+                  receiverId : encodedReceiverId,
                 },
               }}
               className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 ${

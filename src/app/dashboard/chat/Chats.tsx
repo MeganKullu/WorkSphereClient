@@ -39,7 +39,6 @@ const Chats = ({ getAllUsers }: ChatsProps) => {
   useEffect(() => {
     getAllUsers(currentUserId).then((data: any) => {
       if (data) {
-        console.log("chatdata", data);
         setChats(data);
       }
     });
@@ -56,16 +55,6 @@ const Chats = ({ getAllUsers }: ChatsProps) => {
           const roomId = generateRoomId(currentUserId, receiverId);
           const encodedSenderId = encodeId(currentUserId);
           const encodedReceiverId = encodeId(receiverId);
-
-          // const setChatData = (name : string, encodedSenderId: string, encodedReceiverId: string, roomId: string) => {
-          //   Cookies.set("chatName", name);
-          //   Cookies.set("senderId", encodedSenderId);
-          //   Cookies.set("receiverId", encodedReceiverId);
-          //   Cookies.set("roomId", roomId);
-          // };
-
-          // setChatData(name, encodedSenderId, encodedReceiverId, roomId)
-
           return (
             <Link
               key={chat.id}

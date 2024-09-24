@@ -3,7 +3,8 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { HiOutlineLink, HiOutlineArrowCircleRight } from "react-icons/hi";
-import io from "socket.io-client";
+import { format } from "date-fns";
+import useChatStore from "@/stores/chat/useChatStore";
 
 const ChatRoom = ({
   senderId,
@@ -18,33 +19,41 @@ const ChatRoom = ({
     senderId: string | null,
     receiverId: string | null
   ) => Promise<any>;
-  roomId: string | null | undefined;
+  roomId: string;
   name: string | null | undefined;
 }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { messages, addMessage, setRoomMessages, socket } = useChatStore();
   const [newMessage, setNewMessage] = useState("");
 
-  const socket = io(`http://localhost:3002`);
+  // Inside the ChatRoom component
+  const formatTime = (isoString: string) => {
+    try {
+      const date = new Date(isoString);
+      if (isNaN(date.getTime())) {
+        throw new Error("Invalid date");
+      }
+      return format(date, "h:mm a");
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Invalid date";
+    }
+  };
 
   useEffect(() => {
     const room_id = roomId;
     const sender_id = senderId;
     const receiver_id = receiverId;
-    const receiverName = name;
 
-    console.log("roomId", room_id);
-    console.log("senderId",sender_id );
-    console.log("receiverId", receiver_id);
-    console.log("receiverName", receiverName);
-   
-
-    const fetchMessageData = async (senderId: string | null, receiverId: string | null) => {
+    const fetchMessageData = async (
+      senderId: string | null,
+      receiverId: string | null
+    ) => {
       try {
-        const messages = await fetchMessages(senderId, receiverId);
-        setMessages(messages || []);
+        const fetchedMessages = await fetchMessages(senderId, receiverId);
+        setRoomMessages(roomId, fetchedMessages || []);
       } catch (error) {
         console.error("Failed to fetch messages:", error);
-        setMessages([]);
+        setRoomMessages(roomId, []);
       }
     };
 
@@ -52,20 +61,38 @@ const ChatRoom = ({
 
     socket.emit("join_room", room_id);
 
-    socket.on("receive_message", (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
+    socket.on("receive_message", (message: Message) => {
+      addMessage(roomId, message);
     });
-  }, []);
-  // here we will import the fetch function
+
+    // socket.on("message_delivered", ({ messageId, delivered }) => {
+    //     setMessages((prevMessages) =>
+    //       prevMessages.map((msg) =>
+    //         msg.id === messageId ? { ...msg, delivered } : msg
+    //       )
+    //     );
+    //   });
+    return () => {
+      socket.emit("leave_room", roomId);
+    };
+  }, [roomId, senderId, receiverId]);
 
   // fetchMessages();
   const sendMessage = () => {
-    const messageData = {
+    const messageData: Message = {
       senderId, // will be the id of the current logged in user
       receiverId, // will be the id of the receiver
-      message: newMessage,
+      content: newMessage,
       cohortId: null, // Replace with actual cohort ID if applicable
+      sendAt: new Date().toISOString(),
+      delivered: false,
     };
+
+    addMessage(roomId, {
+      ...messageData,
+      id: Date.now().toString(),
+      sendAt: new Date().toISOString(),
+    });
 
     socket.emit("send_message", messageData);
     setNewMessage("");
@@ -79,10 +106,10 @@ const ChatRoom = ({
             <p className="text-black text-2xl font-semibold">{name}</p>
           </div>
           <div className="flex-grow mt-4 space-y-4 overflow-y-auto">
-            {messages.length === 0 ? (
+            {messages[roomId]?.length === 0 ? (
               <p>No messages yet.</p>
             ) : (
-              messages?.map((message) => (
+              messages[roomId]?.map((message: Message) => (
                 <div
                   key={message.id}
                   className={`flex ${
@@ -100,7 +127,14 @@ const ChatRoom = ({
                   >
                     <p className="font-bold text-sm">{}</p>
                     <p className="text-sm">{message.content}</p>
-                    <p className="text-gray-400 text-sm">{message.sendAt}</p>
+                    <p className="text-gray-400 text-sm">
+                      {formatTime(message.sendAt)}
+                    </p>
+                    {message.senderId === senderId && (
+                      <p className="text-gray-400 text-sm">
+                        {message.delivered ? "✔✔" : "✔"}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))

@@ -42,10 +42,12 @@ interface Chat {
 }
 
 interface Message {
-  id: string;
-  senderId: string;
-  receiverId: string;
+  id?: string;
+  senderId: string | null;
+  receiverId: string | null;
   content: string;
   sendAt: string;
+  cohortId: string | null;
+  delivered: boolean;
 }
 

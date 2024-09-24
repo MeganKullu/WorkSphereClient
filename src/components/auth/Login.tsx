@@ -23,7 +23,7 @@ const Login: React.FC<LoginProps>= ({ onSubmit }) => {
 
   const handleFormSubmit = async (data: LoginFormData) => {
     setLoading(true);
-    await onSubmit(data).then((data: any) => setUserId(data.userId));
+    await onSubmit(data).then((data: string) => setUserId(data));
     setLoading(false);
     router.push("/dashboard/chat");
   };

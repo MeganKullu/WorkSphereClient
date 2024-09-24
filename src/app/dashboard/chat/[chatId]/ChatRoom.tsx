@@ -19,9 +19,9 @@ const ChatRoom = ({
     senderId: string | null,
     receiverId: string | null,
     page: number,
-    limit: number,
+    limit: number
   ) => Promise<any>;
-  roomId: string ;
+  roomId: string;
   name: string | null | undefined;
 }) => {
   const { messages, addMessage, setRoomMessages, socket } = useChatStore();
@@ -50,14 +50,23 @@ const ChatRoom = ({
     const sender_id = senderId;
     const receiver_id = receiverId;
 
+    console.log("roomId", roomId);
+    console.log("senderId", senderId);
+    console.log("receiverId", receiverId);
+
     const fetchMessageData = async (
       senderId: string | null,
       receiverId: string | null,
       page: number,
-      limit: number,
+      limit: number
     ) => {
       try {
-        const fetchedMessages = await fetchMessages(senderId, receiverId, page, limit);
+        const fetchedMessages = await fetchMessages(
+          senderId,
+          receiverId,
+          page,
+          limit
+        );
         setRoomMessages(roomId, fetchedMessages || []);
       } catch (error) {
         console.error("Failed to fetch messages:", error);
@@ -101,8 +110,9 @@ const ChatRoom = ({
     }
   };
 
-
   const sendMessage = () => {
+    if (!newMessage.trim()) return;
+
     const messageData: Message = {
       senderId, // will be the id of the current logged in user
       receiverId, // will be the id of the receiver
@@ -123,12 +133,20 @@ const ChatRoom = ({
     scrollToBottom();
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
   return (
     <div className="flex h-full w-full gap-2 xl:gap-4">
       <div className="w-2/3 h-full bg-[#e8ebf6] rounded-r-[30px] py-4 px-6 flex flex-col">
         <div className="flex-1">
           <div className="flex justify-between">
             <p className="text-black text-2xl font-semibold">{name}</p>
+            <p className="text-gray-200">online</p>
           </div>
           <div
             className="flex-grow mt-4 space-y-4 overflow-y-auto"
@@ -156,14 +174,16 @@ const ChatRoom = ({
                   >
                     <p className="font-bold text-sm">{}</p>
                     <p className="text-sm">{message.content}</p>
-                    <p className="text-gray-400 text-sm">
-                      {formatTime(message.sendAt)}
-                    </p>
-                    {message.senderId === senderId && (
-                      <p className="text-gray-400 text-sm">
-                        {message.delivered ? "✔✔" : "✔"}
+                    <div className="flex justify-between gap-4">
+                      <p className="text-gray-400 text-xs">
+                        {formatTime(message.sendAt)}
                       </p>
-                    )}
+                      {message.senderId === senderId && (
+                        <p className="text-gray-400 text-xs">
+                          {message.delivered ? "✔✔" : "✔"}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))
@@ -175,6 +195,7 @@ const ChatRoom = ({
             type="text"
             placeholder="Type a message..."
             onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
             className="w-full pl-10 py-3 bg-[#d5dbe7] rounded-lg text-sm pr-10 text-black"
           />
           <button className="absolute left-3 top-1/2 transform -translate-y-1/2 ">

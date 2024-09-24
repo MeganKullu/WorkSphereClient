@@ -4,14 +4,14 @@ import { useEffect } from "react";
 import Search from "./Search";
 import Chats from "./Chats";
 import useChatStore from "@/stores/chat/useChatStore";
-import useUserStore from "@/stores/user/UseUserStore";
+
 
 const ChatLayout = ({ children }: { children: React.ReactNode }) => {
 
   //here we will handle getting all the current active chats and the search
 
-  const { recentChats, setRecentChats } = useChatStore();
-  const { userId } = useChatStore();
+  const { recentChats, setRecentChats, socket, addMessage, userId } = useChatStore();
+ 
 
   const fetchRecentChats = async (currentUserId: string | null) => {
     try {
@@ -31,7 +31,16 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const currentUserId = userId; 
     fetchRecentChats(currentUserId);
-  }, []);
+
+    // Listen for new messages
+    socket.on("newMessage", (roomId: string, message: string) => {
+      addMessage(roomId, message);
+    });
+
+    return () => {
+      socket.off("newMessage");
+    };
+  }, [userId, socket, addMessage]);
 
  
 

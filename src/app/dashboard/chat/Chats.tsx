@@ -8,9 +8,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useContext } from "react";
 import useUserStore from "@/stores/user/UseUserStore";
+import useChatStore from "@/stores/chat/useChatStore";
 
 const Chats = ({ chats }: { chats: any[] }) => {
   const userId = useUserStore((state) => state.userId);
+  const { socket, setRoomMessages } = useChatStore();
 
   const currentUserId = userId;
 
@@ -30,6 +32,17 @@ const Chats = ({ chats }: { chats: any[] }) => {
   };
 
   const pathname = usePathname();
+
+  useEffect(() => {
+    // Listen for new messages
+    socket.on("newMessage", (roomId: any, message: any) => {
+      setRoomMessages(roomId, (prevMessages: any) => [...prevMessages, message]);
+    });
+
+    return () => {
+      socket.off("newMessage");
+    };
+  }, [socket, setRoomMessages]);
 
   return (
     <>

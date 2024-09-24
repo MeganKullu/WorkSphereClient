@@ -15,7 +15,6 @@ const page = () => {
     });
 
     const loginData = await response.json();
-
     return loginData.userId;
   };
 

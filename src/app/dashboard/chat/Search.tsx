@@ -64,6 +64,11 @@ const Search = () => {
     return id ? Buffer.from(id).toString("base64") : "";
   };
 
+  const clearResults = () => {
+    setResults([]);
+    setQuery("");
+  };
+
   return (
     <div>
       <form onSubmit={(e) => e.preventDefault()}>
@@ -94,6 +99,7 @@ const Search = () => {
               }}
               key={user.id}
               className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 border-b-2 border-[#cdd5ea]}`}
+              onClick={clearResults}
             >
               <div className="basis-1/4 rounded-lg bg-black">
                 {/* image goes here */}

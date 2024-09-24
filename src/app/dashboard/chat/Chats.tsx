@@ -8,18 +8,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useContext } from "react";
 import useUserStore from "@/stores/user/UseUserStore";
-import Cookies from "js-cookie";
 
-interface ChatsProps {
-  getAllUsers: (currentUserId: string | null) => Promise<Chat[] | undefined>;
-}
-
-const Chats = ({ getAllUsers }: ChatsProps) => {
-  const [chats, setChats] = useState<Chat[]>([]);
+const Chats = ({ chats }: { chats: any[] }) => {
   const userId = useUserStore((state) => state.userId);
 
   const currentUserId = userId;
-  console.log("currentUserIdChatlayout", currentUserId);
 
   // Utility function to encode IDs
 
@@ -35,14 +28,6 @@ const Chats = ({ getAllUsers }: ChatsProps) => {
     const [first, second] = [userId1?.toString(), userId2.toString()].sort();
     return `${first}_${second}`;
   };
-
-  useEffect(() => {
-    getAllUsers(currentUserId).then((data: any) => {
-      if (data) {
-        setChats(data);
-      }
-    });
-  }, [currentUserId]);
 
   const pathname = usePathname();
 

@@ -1,54 +1,46 @@
-import React from "react";
+"use client";
+
+import { useEffect } from "react";
 import Search from "./Search";
 import Chats from "./Chats";
+import useChatStore from "@/stores/chat/useChatStore";
+import useUserStore from "@/stores/user/UseUserStore";
 
 const ChatLayout = ({ children }: { children: React.ReactNode }) => {
 
   //here we will handle getting all the current active chats and the search
 
-  const getAllUsers = async (currentUserId: string | null) => {
-    "use server";
+  const { recentChats, setRecentChats } = useChatStore();
+  const { userId } = useChatStore();
 
-    const response = await fetch(`http://localhost:3002/api/users/?currentUserId=${currentUserId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
-    console.log("getAllUsers", data);
-
-    return data;
-  }
-
-  const handleSearch = async (query: string) => {
-
-    "use server";
-
+  const fetchRecentChats = async (currentUserId: string | null) => {
     try {
-      const response = await fetch(
-        `http://localhost:3002/api/users/search?q=${query}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-     
+      const response = await fetch(`http://localhost:3002/api/chats/${currentUserId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       const data = await response.json();
-      console.log("SEARCH ERROR",data.message );
-      return (data);
+      setRecentChats(data);
     } catch (error) {
-      console.error("Error fetching search results:", error);
+      console.error("Failed to fetch recent chats:", error);
     }
   };
+
+  useEffect(() => {
+    const currentUserId = userId; 
+    fetchRecentChats(currentUserId);
+  }, []);
+
+ 
 
   return (
     <div className="flex h-full">
       <div className="w-1/4 h-full bg-[#e8ebf6] rounded-l-[30px] p-4">
-       <Search handleSearch={handleSearch}/>
-       <Chats getAllUsers={getAllUsers}/>
+       <Search/>
+       <div className="text-black font-semibold text-2xl">Chats</div>
+       <Chats chats={recentChats}/>
       </div>
       <div className="w-3/4">{children}</div>
     </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import useUserStore from "@/stores/user/UseUserStore";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -10,6 +12,8 @@ import { useForm } from "react-hook-form";
 const Login: React.FC<LoginProps>= ({ onSubmit }) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const setUserId = useUserStore((state: any) => state.setUserId);
+  const router = useRouter();
 
   const {
     register,
@@ -19,8 +23,9 @@ const Login: React.FC<LoginProps>= ({ onSubmit }) => {
 
   const handleFormSubmit = async (data: LoginFormData) => {
     setLoading(true);
-    await onSubmit(data);
+    await onSubmit(data).then((data: any) => setUserId(data.userId));
     setLoading(false);
+    router.push("/dashboard/chat");
   };
 
   return (

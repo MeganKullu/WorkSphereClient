@@ -5,14 +5,12 @@ import ChatRoom from "./ChatRoom";
 import { useSearchParams } from "next/navigation";
 
 const ChatDetail = ({ params }: { params: { roomId: string } }) => {
-
+  let roomId = params.roomId;
   const searchParams = useSearchParams();
-  
+
   let name = searchParams.get("name");
   let encodedSenderId = searchParams.get("encodedSenderId");
   let encodedReceiverId = searchParams.get("encodedReceiverId");
-  let roomId = searchParams.get("roomId");
-
 
   // Decode the Base64 encoded senderId and receiverId
   let senderId = encodedSenderId ? atob(encodedSenderId) : null;
@@ -20,19 +18,17 @@ const ChatDetail = ({ params }: { params: { roomId: string } }) => {
 
   const fetchMessages = async (
     senderId: string | null,
-    receiverId: string | null
+    receiverId: string | null,
+    page: number,
+    limit: number
   ) => {
-
     try {
-      console.log("fetchfnSender", senderId);
-      console.log("fetchfnReceiver", receiverId);
       const response = await fetch(
-        `http://localhost:3002/api/messages/users/${senderId}/${receiverId}`
+        `http://localhost:3002/api/messages/users/${senderId}/${receiverId}?page=${page}&limit=${limit}`
       );
 
       const data = await response.json();
       console.log("chat data", data);
-
       return data;
     } catch (error) {
       console.error("Error fetching chat data", error);

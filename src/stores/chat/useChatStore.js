@@ -5,7 +5,9 @@ const socket = io(`http://localhost:3002`);
 
 const useChatStore = create((set) => ({
   messages: {},
+  recentChats: [],
   socket,
+  setRecentChats: (chats) => set({ recentChats: chats }),
   addMessage: (roomId, message) => set((state) => ({
     messages: {
       ...state.messages,

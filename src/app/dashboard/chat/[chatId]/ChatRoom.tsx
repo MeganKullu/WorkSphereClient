@@ -24,7 +24,7 @@ const ChatRoom = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
 
-  const socket = io(`https://3266-197-237-117-23.ngrok-free.app/`, {
+  const socket = io(`https://41d9-105-160-57-244.ngrok-free.app/`, {
     extraHeaders: {
       "ngrok-skip-browser-warning": "true",
     },

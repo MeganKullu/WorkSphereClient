@@ -27,7 +27,7 @@ const ChatDetail = ({ params }: { params: { roomId: string } }) => {
       console.log("fetchfnSender", senderId);
       console.log("fetchfnReceiver", receiverId);
       const response = await fetch(
-        `https://3266-197-237-117-23.ngrok-free.app/api/messages/users/${senderId}/${receiverId}`
+        `http://localhost:3000/api/messages/users/${senderId}/${receiverId}`
       );
 
       const data = await response.json();

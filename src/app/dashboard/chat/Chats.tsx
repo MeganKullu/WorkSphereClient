@@ -54,30 +54,29 @@ const Chats = ({ getAllUsers }: ChatsProps) => {
         chats.map((chat: any) => {
           const receiverId = chat.id;
           const roomId = generateRoomId(currentUserId, receiverId);
-          console.log('roomIdChattsx', roomId);
           const encodedSenderId = encodeId(currentUserId);
           const encodedReceiverId = encodeId(receiverId);
 
-          const setChatData = (name : string, encodedSenderId: string, encodedReceiverId: string, roomId: string) => {
-            Cookies.set("chatName", name);
-            Cookies.set("senderId", encodedSenderId);
-            Cookies.set("receiverId", encodedReceiverId);
-            Cookies.set("roomId", roomId);
-          };
+          // const setChatData = (name : string, encodedSenderId: string, encodedReceiverId: string, roomId: string) => {
+          //   Cookies.set("chatName", name);
+          //   Cookies.set("senderId", encodedSenderId);
+          //   Cookies.set("receiverId", encodedReceiverId);
+          //   Cookies.set("roomId", roomId);
+          // };
 
-          setChatData(chat.firstName, encodedSenderId, encodedReceiverId, roomId)
+          // setChatData(name, encodedSenderId, encodedReceiverId, roomId)
 
           return (
             <Link
               key={chat.id}
               href={{
                 pathname: `/dashboard/chat/${roomId}`,
-                // query: {
-                //   name: chat.firstName,
-                //   senderId: encodedSenderId,
-                //   receiverId: encodedReceiverId,
-                //   roomId,
-                // },
+                query: {
+                  name: chat.firstName,
+                  encodedSenderId,
+                  encodedReceiverId,
+                  roomId,
+                },
               }}
               className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 ${
                 pathname === `dashboard/chat/${chat.id}`

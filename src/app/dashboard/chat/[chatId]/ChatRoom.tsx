@@ -24,20 +24,19 @@ const ChatRoom = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
 
-  const socket = io(`https://41d9-105-160-57-244.ngrok-free.app/`, {
-    extraHeaders: {
-      "ngrok-skip-browser-warning": "true",
-    },
-  });
+  const socket = io(`http://localhost:3002`);
 
   useEffect(() => {
     const room_id = roomId;
     const sender_id = senderId;
     const receiver_id = receiverId;
+    const receiverName = name;
 
     console.log("roomId", room_id);
     console.log("senderId",sender_id );
     console.log("receiverId", receiver_id);
+    console.log("receiverName", receiverName);
+   
 
     const fetchMessageData = async (senderId: string | null, receiverId: string | null) => {
       try {
@@ -78,7 +77,6 @@ const ChatRoom = ({
         <div className="flex-1">
           <div className="flex justify-between">
             <p className="text-black text-2xl font-semibold">{name}</p>
-            <p>{roomId}</p>
           </div>
           <div className="flex-grow mt-4 space-y-4 overflow-y-auto">
             {messages.length === 0 ? (
@@ -118,11 +116,11 @@ const ChatRoom = ({
           />
           <button className="absolute left-3 top-1/2 transform -translate-y-1/2 ">
             <HiOutlineLink className="text-black size-6" />
-            <input
+            {/* <input
               type="file"
               // onChange={handleFileUpload}
               className="flex "
-            />
+            /> */}
           </button>
           {/* this will be the button to send the data */}
           <button

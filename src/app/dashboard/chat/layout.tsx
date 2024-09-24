@@ -9,7 +9,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
   const getAllUsers = async (currentUserId: string | null) => {
     "use server";
 
-    const response = await fetch(`http://localhost:3000/api/users/?currentUserId=${currentUserId}`, {
+    const response = await fetch(`http://localhost:3002/api/users/?currentUserId=${currentUserId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -27,7 +27,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/search?q=${query}`,
+        `http://localhost:3002/api/users/search?q=${query}`,
         {
           method: "GET",
           headers: {

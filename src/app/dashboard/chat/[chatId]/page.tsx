@@ -1,17 +1,18 @@
 // pages/dashboard/chat/[chatId].tsx
-
+"use client";
 import React from "react";
 import ChatRoom from "./ChatRoom";
-import { cookies } from "next/headers";
+import { useSearchParams } from "next/navigation";
 
 const ChatDetail = ({ params }: { params: { roomId: string } }) => {
+
+  const searchParams = useSearchParams();
   
-  const cookieStore = cookies();
-  const name = cookieStore.get('chatName')?.value;
-  const encodedSenderId = cookieStore.get('senderId')?.value;
-  const encodedReceiverId = cookieStore.get('receiverId')?.value;
-  const roomId = cookieStore.get("roomId")?.value;
- 
+  let name = searchParams.get("name");
+  let encodedSenderId = searchParams.get("encodedSenderId");
+  let encodedReceiverId = searchParams.get("encodedReceiverId");
+  let roomId = searchParams.get("roomId");
+
 
   // Decode the Base64 encoded senderId and receiverId
   let senderId = encodedSenderId ? atob(encodedSenderId) : null;
@@ -21,13 +22,12 @@ const ChatDetail = ({ params }: { params: { roomId: string } }) => {
     senderId: string | null,
     receiverId: string | null
   ) => {
-    "use server";
 
     try {
       console.log("fetchfnSender", senderId);
       console.log("fetchfnReceiver", receiverId);
       const response = await fetch(
-        `http://localhost:3000/api/messages/users/${senderId}/${receiverId}`
+        `http://localhost:3002/api/messages/users/${senderId}/${receiverId}`
       );
 
       const data = await response.json();

@@ -2,17 +2,18 @@
 
 import useUserStore from "@/stores/user/UseUserStore";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 //add show password feature here
 //add a remember password feature we will use loacl storage in json web token
 //we need to encrypt the password
 
-const Login: React.FC<LoginProps>= ({ onSubmit }) => {
+const Login: React.FC<LoginProps> = ({ onSubmit }) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const setUserId = useUserStore((state: any) => state.setUserId);
+  const userId = useUserStore((state: any) => state.userId);
   const router = useRouter();
 
   const {
@@ -23,16 +24,26 @@ const Login: React.FC<LoginProps>= ({ onSubmit }) => {
 
   const handleFormSubmit = async (data: LoginFormData) => {
     setLoading(true);
-    await onSubmit(data).then((data: string) => setUserId(data));
-    setLoading(false);
-    router.push("/dashboard/chat");
+    await onSubmit(data)
+      .then((data: string) => {
+        console.log("userId", data);
+        setLoading(false);
+        setUserId(data, () => {
+          router.push("/dashboard/chat");
+        });
+      });
   };
+
+  useEffect(() => {
+    console.log("User ID from store:", userId); // Log the userId from the store
+  }, [userId]);
 
   return (
     <div className="flex justify-center items-center h-screen w-full">
       <form
-       onSubmit={handleSubmit(handleFormSubmit)}
-       className="bg-white shadow-xl md:w-1/2 lg:w-1/3 2xl:w-1/4 p-8 rounded-3xl">
+        onSubmit={handleSubmit(handleFormSubmit)}
+        className="bg-white shadow-xl md:w-1/2 lg:w-1/3 2xl:w-1/4 p-8 rounded-3xl"
+      >
         <p className="text-2xl font-extrabold mt-2 mb-6 text-black text-center">
           Welcome back!
         </p>

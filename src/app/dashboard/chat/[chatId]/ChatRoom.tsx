@@ -25,6 +25,7 @@ const ChatRoom = ({
   const [newMessage, setNewMessage] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [isOnline, setIsOnline] = useState(false); 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -143,7 +144,7 @@ const ChatRoom = ({
       <div className="w-2/3 h-full bg-[#e8ebf6] rounded-r-[30px] py-4 px-6 flex flex-col">
         <div className="flex justify-between">
           <p className="text-black text-2xl font-semibold">{name}</p>
-          <p className="text-gray-200">online</p>
+          <p className="text-black">online</p>
         </div>
         <div
           className="flex-grow mt-4 space-y-4 overflow-y-auto no-scrollbar"

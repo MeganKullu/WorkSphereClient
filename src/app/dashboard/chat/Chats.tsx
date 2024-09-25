@@ -1,51 +1,33 @@
 // here we will map over  all over the chats and and a on click function that will update the chat window
-// we will use the active buttons
-// the routes should be dynamic?
+// we will use the active buttons to show the active chat
 // remember to encode the room ids then decode them later
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import useUserStore from "@/stores/user/UseUserStore";
 import useChatStore from "@/stores/chat/useChatStore";
 
 const Chats = () => {
   const userId = useUserStore((state) => state.userId);
-  const { socket, setRoomMessages, addMessage } = useChatStore();
+  const { socket, setRoomMessages, addMessage, updateUserStatus, recentChats, setRecentChats } = useChatStore();
   const [chats, setChats] = useState([]);
   const currentUserId = userId;
 
   // Utility function to encode IDs
-
   const encodeId = (id: string | null) => {
     return id ? Buffer.from(id).toString("base64") : "";
   };
 
-  //generateTheRoomId
-
+  // Generate the room ID
   const generateRoomId = (userId1: string | null, userId2: string) => {
-    // Convert IDs to strings in case they are numeric
-
     const [first, second] = [userId1?.toString(), userId2.toString()].sort();
     return `${first}_${second}`;
   };
 
   const pathname = usePathname();
-
-  useEffect(() => {
-    // Listen for new messages
-    socket.on("newMessage", (roomId: any, message: any) => {
-      setRoomMessages(roomId, (prevMessages: any) => [
-        ...prevMessages,
-        message,
-      ]);
-    });
-
-    return () => {
-      socket.off("newMessage");
-    };
-  }, [socket, setRoomMessages]);
 
   const fetchRecentChats = async (currentUserId: string | null) => {
     try {
@@ -71,6 +53,7 @@ const Chats = () => {
       });
 
       setChats(sortedChats);
+      setRecentChats(sortedChats);
       console.log("Recent chats:", sortedChats);
     } catch (error) {
       console.error("Failed to fetch recent chats:", error);
@@ -79,72 +62,87 @@ const Chats = () => {
 
   useEffect(() => {
     fetchRecentChats(currentUserId);
+
     // Listen for new messages
     socket.on("newMessage", (roomId: string, message: string) => {
       addMessage(roomId, message);
     });
 
+    // Listen for online status
+    socket.on("user_online", (userId: string) => {
+      updateUserStatus(userId, true);
+    });
+
+    // Listen for offline status
+    socket.on("user_offline", (userId: string) => {
+      updateUserStatus(userId, false);
+    });
+
     return () => {
       socket.off("newMessage");
+      socket.off("user_online");
+      socket.off("user_offline");
     };
-  }, [userId, socket, addMessage]);
+  }, [socket, setRoomMessages, addMessage, fetchRecentChats, updateUserStatus, currentUserId]);
 
   return (
-    <>
-      {/* should be scrollable too */}
-      {chats &&
-        chats.map((chat: any) => {
+    <AnimatePresence>
+      {recentChats &&
+        recentChats.map((chat: any) => {
           const receiverId = chat.receiver?.id || chat.sender?.id;
           const roomId = generateRoomId(currentUserId, receiverId);
           const encodedSenderId = encodeId(currentUserId);
           const encodedReceiverId = encodeId(receiverId);
           return (
-            <Link
+            <motion.div
               key={chat.id}
-              href={{
-                pathname: `/dashboard/chat/${roomId}`,
-                query: {
-                  name: chat.receiver?.firstName || chat.sender?.firstName,
-                  encodedSenderId,
-                  encodedReceiverId,
-                  roomId,
-                },
-              }}
-              className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 ${
-                pathname === `dashboard/chat/${chat.id}`
-                  ? "bg-[#d5dbe7]"
-                  : "hover:bg-[#d5dbe7]"
-              }`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
             >
-              <div className="basis-1/4 rounded-lg bg-black">
-                {/* image goes here */}
-              </div>
-              <div className="basis-3/4 mx-2">
-                {/* name of the use/group goes here */}
-                <div className="flex justify-between mb-1">
-                  {/* here the time stamp */}
-                  <div className="flex gap-1">
-                    <p className="text-black text-sm font-bold">
-                      {chat.receiver?.firstName || chat.sender?.firstName}
-                    </p>
-                    <p className="text-black text-sm font-semibold">
-                      {chat.lastName}
+              <Link
+                href={{
+                  pathname: `/dashboard/chat/${roomId}`,
+                  query: {
+                    name: chat.receiver?.firstName || chat.sender?.firstName,
+                    encodedSenderId,
+                    encodedReceiverId,
+                    roomId,
+                  },
+                }}
+                className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 ${
+                  pathname === `dashboard/chat/${chat.id}`
+                    ? "bg-[#d5dbe7]"
+                    : "hover:bg-[#d5dbe7]"
+                }`}
+              >
+                <div className="basis-1/4 rounded-lg bg-black">
+                  {/* image goes here */}
+                </div>
+                <div className="basis-3/4 mx-2">
+                  <div className="flex justify-between mb-1">
+                    <div className="flex gap-1">
+                      <p className="text-black text-sm font-bold">
+                        {chat.receiver?.firstName || chat.sender?.firstName}
+                      </p>
+                      <p className="text-black text-sm font-semibold">
+                        {chat.lastName}
+                      </p>
+                    </div>
+                    <p className="text-gray-400 text-xs">
+                      {new Date(chat.lastMessage.sentAt).toLocaleTimeString()}
                     </p>
                   </div>
-                  <p className="text-gray-400 text-xs">
-                    {" "}
-                    {new Date(chat.lastMessage.sentAt).toLocaleTimeString()}
+                  <p className="line-clamp-1 text-xs text-black">
+                    {chat.lastMessage.content}
                   </p>
                 </div>
-                {/* here we truncate the new message */}
-                <p className="line-clamp-1 text-xs text-black">
-                  {chat.lastMessage.content}
-                </p>
-              </div>
-            </Link>
+              </Link>
+            </motion.div>
           );
         })}
-    </>
+    </AnimatePresence>
   );
 };
 

@@ -9,6 +9,7 @@ const ChatRoom = ({
   fetchMessages,
   roomId,
   name,
+  isOnline,
 }: {
   senderId: string | null;
   receiverId: string | null;
@@ -20,14 +21,15 @@ const ChatRoom = ({
   ) => Promise<any>;
   roomId: string;
   name: string | null | undefined;
+  isOnline: string | null | undefined;
 }) => {
   const { messages, addMessage, setRoomMessages, socket } = useChatStore();
   const [newMessage, setNewMessage] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [isOnline, setIsOnline] = useState(false); 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isUserOnline, setIsUserOnline] = useState(false); 
 
   useEffect(() => {
     const room_id = roomId;

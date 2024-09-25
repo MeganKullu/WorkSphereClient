@@ -6,6 +6,7 @@ const socket = io(`http://localhost:3002`);
 const useChatStore = create((set) => ({
   messages: {},
   recentChats: [],
+  onlineUsers: {}, // State for online status
   socket,
   setRecentChats: (chats) => set({ recentChats: chats }),
   addMessage: (roomId, message) => set((state) => {
@@ -49,6 +50,12 @@ const useChatStore = create((set) => ({
     messages: {
       ...state.messages,
       [roomId]: newMessages,
+    },
+  })),
+  updateUserStatus: (userId, isOnline) => set((state) => ({
+    onlineUsers: {
+      ...state.onlineUsers,
+      [userId]: isOnline,
     },
   })),
 }));

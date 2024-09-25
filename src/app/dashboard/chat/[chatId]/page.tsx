@@ -9,6 +9,7 @@ const ChatDetail = ({ params }: { params: { roomId: string } }) => {
   let name = searchParams.get("name");
   let encodedSenderId = searchParams.get("encodedSenderId");
   let encodedReceiverId = searchParams.get("encodedReceiverId");
+  let isOnline = searchParams.get("isOnline");
 
   // Decode the Base64 encoded senderId and receiverId
   let senderId = encodedSenderId ? atob(encodedSenderId) : null;
@@ -72,6 +73,7 @@ const ChatDetail = ({ params }: { params: { roomId: string } }) => {
       fetchMessages={fetchMessages}
       roomId={roomId}
       name={name}
+      isOnline={isOnline}
     />
   );
 };

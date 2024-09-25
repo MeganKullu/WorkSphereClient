@@ -12,7 +12,15 @@ import useChatStore from "@/stores/chat/useChatStore";
 
 const Chats = () => {
   const userId = useUserStore((state) => state.userId);
-  const { socket, setRoomMessages, addMessage, updateUserStatus, recentChats, setRecentChats } = useChatStore();
+  const {
+    socket,
+    setRoomMessages,
+    addMessage,
+    updateUserStatus,
+    recentChats,
+    setRecentChats,
+    onlineUsers,
+  } = useChatStore();
   const [chats, setChats] = useState([]);
   const currentUserId = userId;
 
@@ -83,66 +91,77 @@ const Chats = () => {
       socket.off("user_online");
       socket.off("user_offline");
     };
-  }, [socket, setRoomMessages, addMessage, fetchRecentChats, updateUserStatus, currentUserId]);
+  }, [
+    socket,
+    setRoomMessages,
+    addMessage,
+    fetchRecentChats,
+    updateUserStatus,
+    currentUserId,
+  ]);
 
   return (
-    <AnimatePresence>
-      {recentChats &&
-        recentChats.map((chat: any) => {
-          const receiverId = chat.receiver?.id || chat.sender?.id;
-          const roomId = generateRoomId(currentUserId, receiverId);
-          const encodedSenderId = encodeId(currentUserId);
-          const encodedReceiverId = encodeId(receiverId);
-          return (
-            <motion.div
-              key={chat.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Link
-                href={{
-                  pathname: `/dashboard/chat/${roomId}`,
-                  query: {
-                    name: chat.receiver?.firstName || chat.sender?.firstName,
-                    encodedSenderId,
-                    encodedReceiverId,
-                    roomId,
-                  },
-                }}
-                className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 ${
-                  pathname === `dashboard/chat/${chat.id}`
-                    ? "bg-[#d5dbe7]"
-                    : "hover:bg-[#d5dbe7]"
-                }`}
+    <div className="h-full overflow-y-auto">
+      <AnimatePresence>
+        {recentChats &&
+          recentChats.map((chat: any) => {
+            const receiverId = chat.receiver?.id || chat.sender?.id;
+            const roomId = generateRoomId(currentUserId, receiverId);
+            const encodedSenderId = encodeId(currentUserId);
+            const encodedReceiverId = encodeId(receiverId);
+            const isOnline = onlineUsers[receiverId];
+            return (
+              <motion.div
+                key={chat.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
               >
-                <div className="basis-1/4 rounded-lg bg-black">
-                  {/* image goes here */}
-                </div>
-                <div className="basis-3/4 mx-2">
-                  <div className="flex justify-between mb-1">
-                    <div className="flex gap-1">
-                      <p className="text-black text-sm font-bold">
-                        {chat.receiver?.firstName || chat.sender?.firstName}
-                      </p>
-                      <p className="text-black text-sm font-semibold">
-                        {chat.lastName}
+                <Link
+                  href={{
+                    pathname: `/dashboard/chat/${roomId}`,
+                    query: {
+                      name: chat.receiver?.firstName || chat.sender?.firstName,
+                      encodedSenderId,
+                      encodedReceiverId,
+                      roomId,
+                      isOnline: isOnline ? "true" : "false",
+                    },
+                  }}
+                  className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 ${
+                    pathname === `dashboard/chat/${roomId}`
+                      ? "bg-[#d5dbe7]"
+                      : "hover:bg-[#d5dbe7]"
+                  }`}
+                >
+                  <div className="basis-1/4 rounded-lg bg-black">
+                    {/* image goes here */}
+                  </div>
+                  <div className="basis-3/4 mx-2">
+                    <div className="flex justify-between mb-1">
+                      <div className="flex gap-1">
+                        <p className="text-black text-sm font-bold">
+                          {chat.receiver?.firstName || chat.sender?.firstName}
+                        </p>
+                        <p className="text-black text-sm font-semibold">
+                          {chat.lastName}
+                        </p>
+                      </div>
+                      <p className="text-gray-400 text-xs">
+                        {new Date(chat.lastMessage.sentAt).toLocaleTimeString()}
                       </p>
                     </div>
-                    <p className="text-gray-400 text-xs">
-                      {new Date(chat.lastMessage.sentAt).toLocaleTimeString()}
+                    <p className="line-clamp-1 text-xs text-black">
+                      {chat.lastMessage.content}
                     </p>
                   </div>
-                  <p className="line-clamp-1 text-xs text-black">
-                    {chat.lastMessage.content}
-                  </p>
-                </div>
-              </Link>
-            </motion.div>
-          );
-        })}
-    </AnimatePresence>
+                </Link>
+              </motion.div>
+            );
+          })}
+      </AnimatePresence>
+    </div>
   );
 };
 

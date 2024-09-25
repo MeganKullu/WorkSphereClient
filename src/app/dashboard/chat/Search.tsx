@@ -20,7 +20,7 @@ const Search = () => {
     try {
       console.log("Trying serach");
       const response = await fetch(
-        `http://localhost:3002/api/users/search?q=${query}`,
+        `http://localhost:3002/api/users/search?q=${query}&currentUserId=${currentUserId}`,
         {
           method: "GET",
           headers: {

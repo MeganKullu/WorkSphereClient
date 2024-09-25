@@ -70,7 +70,7 @@ const Search = () => {
   };
 
   return (
-    <div>
+    <div className={`${results.length > 0 ? "mb-6" : ""}`}>
       <form onSubmit={(e) => e.preventDefault()}>
         <input
           type="text"

@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { HiOutlineLink, HiOutlineArrowCircleRight } from "react-icons/hi";
 import useChatStore from "@/stores/chat/useChatStore";
+import FileModal from "./FileModal";
 
 const ChatRoom = ({
   senderId,
@@ -29,7 +30,19 @@ const ChatRoom = ({
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [isUserOnline, setIsUserOnline] = useState(false); 
+  const [isUserOnline, setIsUserOnline] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleUpload = () => {
+    if (selectedFile) {
+      // Call your upload function here
+      console.log("Uploading file:", selectedFile);
+      // Reset state after upload
+      setSelectedFile(null);
+      setIsModalOpen(false);
+    }
+  };
 
   useEffect(() => {
     const room_id = roomId;
@@ -100,9 +113,17 @@ const ChatRoom = ({
       const { scrollTop } = scrollContainerRef.current;
       if (scrollTop === 0 && !loading) {
         setLoading(true);
-        const newMessages = await fetchMessages(senderId, receiverId, page + 1, 30);
+        const newMessages = await fetchMessages(
+          senderId,
+          receiverId,
+          page + 1,
+          30
+        );
         if (newMessages && newMessages.length > 0) {
-          setRoomMessages((prevMessages: any[]) => [...newMessages, ...prevMessages]);
+          setRoomMessages((prevMessages: any[]) => [
+            ...newMessages,
+            ...prevMessages,
+          ]);
           setPage((prevPage) => prevPage + 1);
         }
         setLoading(false);
@@ -172,7 +193,6 @@ const ChatRoom = ({
                       : "bg-[#515282] text-white"
                   }`}
                 >
-                  
                   <p className="text-sm">{message.content}</p>
                   <div className="flex justify-between gap-4">
                     {message.senderId === senderId && (
@@ -185,11 +205,11 @@ const ChatRoom = ({
                       </p>
                     )}
                     <p className="text-gray-300 text-xs">
-                    {new Date(message.sendAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
+                      {new Date(message.sendAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -206,9 +226,20 @@ const ChatRoom = ({
             onKeyDown={handleKeyDown}
             className="w-full pl-10 py-3 bg-[#d5dbe7] rounded-lg text-sm pr-10 text-black"
           />
-          <button className="absolute left-3 top-1/2 transform -translate-y-1/2 ">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 "
+          >
             <HiOutlineLink className="text-black size-6" />
           </button>
+
+          <FileModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onFileSelect={setSelectedFile}
+            selectedFile={selectedFile}
+            onUpload={handleUpload}
+          />
           <button
             className="absolute right-3 top-1/2 transform -translate-y-1/2 "
             onClick={sendMessage}

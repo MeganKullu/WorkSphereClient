@@ -6,14 +6,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import useUserStore from "@/stores/user/UseUserStore";
 import useChatStore from "@/stores/chat/useChatStore";
 
-const Chats = ({ chats }: { chats: any[] }) => {
+const Chats = () => {
   const userId = useUserStore((state) => state.userId);
-  const { socket, setRoomMessages } = useChatStore();
-
+  const { socket, setRoomMessages, addMessage } = useChatStore();
+  const [chats, setChats] = useState([]);
   const currentUserId = userId;
 
   // Utility function to encode IDs
@@ -44,12 +44,46 @@ const Chats = ({ chats }: { chats: any[] }) => {
     };
   }, [socket, setRoomMessages]);
 
+
+  const fetchRecentChats = async (currentUserId: string | null) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3002/api/chats/${currentUserId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      setChats(data);
+      console.log("Recent chats:", data);
+    } catch (error) {
+      console.error("Failed to fetch recent chats:", error);
+    }
+  };
+
+  useEffect(() => {
+    const currentUserId = userId;
+    fetchRecentChats(currentUserId);
+    // Listen for new messages
+    socket.on("newMessage", (roomId: string, message: string) => {
+      addMessage(roomId, message);
+    });
+
+    return () => {
+      socket.off("newMessage");
+    };
+  }, [userId, socket, addMessage]);
+
+
   return (
     <>
       {/* should be scrollable too */}
       {chats &&
         chats.map((chat: any) => {
-          const receiverId = chat.id;
+          const receiverId = chat.receiver?.id || chat.sender?.id;
           const roomId = generateRoomId(currentUserId, receiverId);
           const encodedSenderId = encodeId(currentUserId);
           const encodedReceiverId = encodeId(receiverId);
@@ -59,7 +93,7 @@ const Chats = ({ chats }: { chats: any[] }) => {
               href={{
                 pathname: `/dashboard/chat/${roomId}`,
                 query: {
-                  name: chat.firstName,
+                  name: chat.receiver?.firstName || chat.sender?.firstName,
                   encodedSenderId,
                   encodedReceiverId,
                   roomId,
@@ -80,7 +114,7 @@ const Chats = ({ chats }: { chats: any[] }) => {
                   {/* here the time stamp */}
                   <div className="flex gap-1">
                     <p className="text-black text-sm font-semibold">
-                      {chat.firstName}
+                      {chat.receiver?.firstName || chat.sender?.firstName}
                     </p>
                     <p className="text-black text-sm font-semibold">
                       {chat.lastName}

@@ -1,4 +1,7 @@
 // here is where the naviagation will go
+// we add the use context here actually if the xustand store does not work
+"use client";
+
 
 import NavigationButtons from "@/components/navigation/NavigationButtons";
 

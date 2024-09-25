@@ -2,7 +2,7 @@
 
 import useUserStore from "@/stores/user/UseUserStore";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useForm } from "react-hook-form";
 
 //add show password feature here
@@ -15,6 +15,8 @@ const Login: React.FC<LoginProps> = ({ onSubmit }) => {
   const setUserId = useUserStore((state: any) => state.setUserId);
   const userId = useUserStore((state: any) => state.userId);
   const router = useRouter();
+ 
+
 
   const {
     register,
@@ -27,16 +29,16 @@ const Login: React.FC<LoginProps> = ({ onSubmit }) => {
     await onSubmit(data)
       .then((data: string) => {
         console.log("userId", data);
-        setLoading(false);
-        setUserId(data, () => {
-          router.push("/dashboard/chat");
-        });
+       setUserId(data);
+       
+      }).then(() => {
+        router.push("/dashboard/chat");
       });
   };
 
   useEffect(() => {
     console.log("User ID from store:", userId); // Log the userId from the store
-  }, [userId]);
+  }, []);
 
   return (
     <div className="flex justify-center items-center h-screen w-full">

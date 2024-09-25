@@ -24,8 +24,8 @@ const sessionStoragePersist: PersistStorage<UserState> = {
 
 const useUserStore = create<UserState>()(
   persist(
-    (set) => ({
-      userId: null,
+    (set, get) => ({
+      userId: get().userId || null,
       setUserId: (id: string, callback?: () => void) => {
         console.log(`Setting userId in state: ${id}`);
         set({ userId: id });

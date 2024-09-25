@@ -5,9 +5,7 @@ import ChatRoom from "./ChatRoom";
 import { useSearchParams } from "next/navigation";
 
 const ChatDetail = ({ params }: { params: { roomId: string } }) => {
-  let roomId = params.roomId;
   const searchParams = useSearchParams();
-
   let name = searchParams.get("name");
   let encodedSenderId = searchParams.get("encodedSenderId");
   let encodedReceiverId = searchParams.get("encodedReceiverId");
@@ -15,6 +13,14 @@ const ChatDetail = ({ params }: { params: { roomId: string } }) => {
   // Decode the Base64 encoded senderId and receiverId
   let senderId = encodedSenderId ? atob(encodedSenderId) : null;
   let receiverId = encodedReceiverId ? atob(encodedReceiverId) : null;
+
+  const generateRoomId = (userId1: string | null, userId2: string | null) => {
+    // Convert IDs to strings in case they are numeric
+    const [first, second] = [userId1?.toString(), userId2?.toString()].sort();
+    return `${first}_${second}`;
+  };
+
+  const roomId = generateRoomId(senderId, receiverId);
 
   const fetchMessages = async (
     senderId: string | null,

@@ -49,5 +49,6 @@ interface Message {
   sendAt: string;
   cohortId: string | null;
   delivered: boolean;
+  read: boolean;
 }
 

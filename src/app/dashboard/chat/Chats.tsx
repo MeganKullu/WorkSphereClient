@@ -36,7 +36,10 @@ const Chats = () => {
   useEffect(() => {
     // Listen for new messages
     socket.on("newMessage", (roomId: any, message: any) => {
-      setRoomMessages(roomId, (prevMessages: any) => [...prevMessages, message]);
+      setRoomMessages(roomId, (prevMessages: any) => [
+        ...prevMessages,
+        message,
+      ]);
     });
 
     return () => {
@@ -44,11 +47,10 @@ const Chats = () => {
     };
   }, [socket, setRoomMessages]);
 
-
   const fetchRecentChats = async (currentUserId: string | null) => {
     try {
       const response = await fetch(
-        `http://localhost:3002/api/chats/${currentUserId}`,
+        `http://localhost:3002/api/messages/recent/${currentUserId}`,
         {
           method: "GET",
           headers: {
@@ -57,15 +59,23 @@ const Chats = () => {
         }
       );
       const data = await response.json();
-      setChats(data);
-      console.log("Recent chats:", data);
+
+      // Sort chats: unread messages first, then by latest message timestamp
+      const sortedChats = data.sort((a: any, b: any) => {
+        if (a.unread && !b.unread) return -1;
+        if (!a.unread && b.unread) return 1;
+        return new Date(b.lastMessage.sentAt).getTime() - new Date(a.lastMessage.sentAt).getTime();
+      });
+
+      setChats(sortedChats);
+      console.log("Recent chats:", sortedChats);
     } catch (error) {
       console.error("Failed to fetch recent chats:", error);
     }
   };
 
   useEffect(() => {
-    const currentUserId = userId;
+  
     fetchRecentChats(currentUserId);
     // Listen for new messages
     socket.on("newMessage", (roomId: string, message: string) => {
@@ -76,7 +86,6 @@ const Chats = () => {
       socket.off("newMessage");
     };
   }, [userId, socket, addMessage]);
-
 
   return (
     <>

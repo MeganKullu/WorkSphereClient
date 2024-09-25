@@ -3,9 +3,8 @@
 import React from "react";
 import { useEffect, useState, useRef } from "react";
 import { HiOutlineLink, HiOutlineArrowCircleRight } from "react-icons/hi";
-import { format } from "date-fns";
 import useChatStore from "@/stores/chat/useChatStore";
-
+// the room id is null, check why
 const ChatRoom = ({
   senderId,
   receiverId,
@@ -32,27 +31,23 @@ const ChatRoom = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Inside the ChatRoom component
-  const formatTime = (isoString: string) => {
-    try {
-      const date = new Date(isoString);
-      if (isNaN(date.getTime())) {
-        throw new Error("Invalid date");
-      }
-      return format(date, "h:mm a");
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return "Invalid date";
-    }
-  };
+  // const formatTime = (isoString: string) => {
+  //   try {
+  //     const date = new Date(isoString);
+  //     if (isNaN(date.getTime())) {
+  //       throw new Error("Invalid date");
+  //     }
+  //     return format(date, "h:mm a");
+  //   } catch (error) {
+  //     console.error("Error formatting date:", error);
+  //     return "Invalid date";
+  //   }
+  // };
 
   useEffect(() => {
     const room_id = roomId;
     const sender_id = senderId;
     const receiver_id = receiverId;
-
-    console.log("roomId", roomId);
-    console.log("senderId", senderId);
-    console.log("receiverId", receiverId);
 
     const fetchMessageData = async (
       senderId: string | null,
@@ -83,16 +78,26 @@ const ChatRoom = ({
       scrollToBottom();
     });
 
-    // socket.on("message_delivered", ({ messageId, delivered }) => {
-    //     setMessages((prevMessages) =>
-    //       prevMessages.map((msg) =>
-    //         msg.id === messageId ? { ...msg, delivered } : msg
-    //       )
-    //     );
-    //   });
+    socket.on("message_delivered", ({ messageId, delivered }: { messageId: string; delivered: boolean } ) => {
+      setRoomMessages((prevMessages: any[]) =>
+        prevMessages.map((msg: { id: string; }) =>
+          msg.id === messageId ? { ...msg, delivered } : msg
+        )
+      );
+    });
+
+    socket.on("messages_read", ({ roomId } : { roomId : string}) => {
+      setRoomMessages((prevMessages: any[]) =>
+        prevMessages.map((msg: { roomId: string; }) =>
+          msg.roomId === roomId ? { ...msg, read: true } : msg
+        )
+      );
+    });
+
     return () => {
       socket.emit("leave_room", roomId);
     };
+
   }, [roomId, senderId, receiverId, page]);
 
   const scrollToBottom = () => {
@@ -120,6 +125,7 @@ const ChatRoom = ({
       cohortId: null, // Replace with actual cohort ID if applicable
       sendAt: new Date().toISOString(),
       delivered: false,
+      read: false,
     };
 
     addMessage(roomId, {
@@ -175,13 +181,17 @@ const ChatRoom = ({
                     <p className="font-bold text-sm">{}</p>
                     <p className="text-sm">{message.content}</p>
                     <div className="flex justify-between gap-4">
-                      <p className="text-gray-400 text-xs">
+                      {/* <p className="text-gray-400 text-xs">
                         {formatTime(message.sendAt)}
-                      </p>
+                      </p> */}
                       {message.senderId === senderId && (
                         <p className="text-gray-400 text-xs">
-                          {message.delivered ? "✔✔" : "✔"}
-                        </p>
+                        {message.read
+                          ? "read"
+                          : message.delivered
+                          ? "✔✔"
+                          : "✔"}
+                      </p>
                       )}
                     </div>
                   </div>

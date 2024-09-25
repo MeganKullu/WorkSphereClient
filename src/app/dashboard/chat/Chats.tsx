@@ -130,7 +130,7 @@ const Chats = () => {
                     },
                   }}
                   className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 ${
-                    pathname === `dashboard/chat/${roomId}`
+                    pathname === `/dashboard/chat/${roomId}`
                       ? "bg-[#d5dbe7]"
                       : "hover:bg-[#d5dbe7]"
                   }`}

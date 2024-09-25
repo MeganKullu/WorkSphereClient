@@ -1,10 +1,8 @@
-// pages/dashboard/chat/[chatId].tsx
 "use client";
-import React from "react";
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { HiOutlineLink, HiOutlineArrowCircleRight } from "react-icons/hi";
 import useChatStore from "@/stores/chat/useChatStore";
-// the room id is null, check why
+
 const ChatRoom = ({
   senderId,
   receiverId,
@@ -29,20 +27,6 @@ const ChatRoom = ({
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  // Inside the ChatRoom component
-  // const formatTime = (isoString: string) => {
-  //   try {
-  //     const date = new Date(isoString);
-  //     if (isNaN(date.getTime())) {
-  //       throw new Error("Invalid date");
-  //     }
-  //     return format(date, "h:mm a");
-  //   } catch (error) {
-  //     console.error("Error formatting date:", error);
-  //     return "Invalid date";
-  //   }
-  // };
 
   useEffect(() => {
     const room_id = roomId;
@@ -78,17 +62,20 @@ const ChatRoom = ({
       scrollToBottom();
     });
 
-    socket.on("message_delivered", ({ messageId, delivered }: { messageId: string; delivered: boolean } ) => {
-      setRoomMessages((prevMessages: any[]) =>
-        prevMessages.map((msg: { id: string; }) =>
-          msg.id === messageId ? { ...msg, delivered } : msg
-        )
-      );
-    });
+    socket.on(
+      "message_delivered",
+      ({ messageId, delivered }: { messageId: string; delivered: boolean }) => {
+        setRoomMessages((prevMessages: any[]) =>
+          prevMessages.map((msg: { id: string }) =>
+            msg.id === messageId ? { ...msg, delivered } : msg
+          )
+        );
+      }
+    );
 
-    socket.on("messages_read", ({ roomId } : { roomId : string}) => {
+    socket.on("messages_read", ({ roomId }: { roomId: string }) => {
       setRoomMessages((prevMessages: any[]) =>
-        prevMessages.map((msg: { roomId: string; }) =>
+        prevMessages.map((msg: { roomId: string }) =>
           msg.roomId === roomId ? { ...msg, read: true } : msg
         )
       );
@@ -97,7 +84,6 @@ const ChatRoom = ({
     return () => {
       socket.emit("leave_room", roomId);
     };
-
   }, [roomId, senderId, receiverId, page]);
 
   const scrollToBottom = () => {
@@ -106,11 +92,17 @@ const ChatRoom = ({
     }
   };
 
-  const handleScroll = () => {
+  const handleScroll = async () => {
     if (scrollContainerRef.current) {
       const { scrollTop } = scrollContainerRef.current;
       if (scrollTop === 0 && !loading) {
-        setPage((prevPage) => prevPage + 1);
+        setLoading(true);
+        const newMessages = await fetchMessages(senderId, receiverId, page + 1, 30);
+        if (newMessages && newMessages.length > 0) {
+          setRoomMessages((prevMessages: any[]) => [...newMessages, ...prevMessages]);
+          setPage((prevPage) => prevPage + 1);
+        }
+        setLoading(false);
       }
     }
   };
@@ -149,58 +141,60 @@ const ChatRoom = ({
   return (
     <div className="flex h-full w-full gap-2 xl:gap-4">
       <div className="w-2/3 h-full bg-[#e8ebf6] rounded-r-[30px] py-4 px-6 flex flex-col">
-        <div className="flex-1">
-          <div className="flex justify-between">
-            <p className="text-black text-2xl font-semibold">{name}</p>
-            <p className="text-gray-200">online</p>
-          </div>
-          <div
-            className="flex-grow mt-4 space-y-4 overflow-y-auto"
-            ref={scrollContainerRef}
-            onScroll={handleScroll}
-          >
-            {messages[roomId]?.length === 0 ? (
-              <p>No messages yet.</p>
-            ) : (
-              messages[roomId]?.map((message: Message) => (
+        <div className="flex justify-between">
+          <p className="text-black text-2xl font-semibold">{name}</p>
+          <p className="text-gray-200">online</p>
+        </div>
+        <div
+          className="flex-grow mt-4 space-y-4 overflow-y-auto no-scrollbar"
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+        >
+          {messages[roomId]?.length === 0 ? (
+            <p>No messages yet.</p>
+          ) : (
+            messages[roomId]?.map((message: Message) => (
+              <div
+                key={message.id}
+                className={`flex ${
+                  message.senderId === senderId
+                    ? "justify-end"
+                    : "justify-start"
+                }`}
+              >
                 <div
-                  key={message.id}
-                  className={`flex ${
-                    message.senderId === senderId
-                      ? "justify-end"
-                      : "justify-start"
+                  className={`p-3 rounded-lg max-w-xs ${
+                    message.receiverId === senderId
+                      ? "bg-[#d5dbe7] text-black"
+                      : "bg-[#515282] text-white"
                   }`}
                 >
-                  <div
-                    className={`p-3 rounded-lg max-w-xs ${
-                      message.receiverId === senderId
-                        ? "bg-[#d5dbe7] text-black"
-                        : "bg-[#515282] text-white"
-                    }`}
-                  >
-                    <p className="font-bold text-sm">{}</p>
-                    <p className="text-sm">{message.content}</p>
-                    <div className="flex justify-between gap-4">
-                      {/* <p className="text-gray-400 text-xs">
-                        {formatTime(message.sendAt)}
-                      </p> */}
-                      {message.senderId === senderId && (
-                        <p className="text-gray-400 text-xs">
+                  
+                  <p className="text-sm">{message.content}</p>
+                  <div className="flex justify-between gap-4">
+                    {message.senderId === senderId && (
+                      <p className="text-gray-400 text-xs">
                         {message.read
                           ? "read"
                           : message.delivered
-                          ? "✔✔"
-                          : "✔"}
+                            ? "✔✔"
+                            : "✔"}
                       </p>
-                      )}
-                    </div>
+                    )}
+                    <p className="text-gray-300 text-xs">
+                    {new Date(message.sendAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
+              </div>
+            ))
+          )}
+          <div ref={messagesEndRef} />
         </div>
-        <div className="mt-auto relative">
+        <div className="relative">
           <input
             type="text"
             placeholder="Type a message..."
@@ -210,13 +204,7 @@ const ChatRoom = ({
           />
           <button className="absolute left-3 top-1/2 transform -translate-y-1/2 ">
             <HiOutlineLink className="text-black size-6" />
-            {/* <input
-              type="file"
-              // onChange={handleFileUpload}
-              className="flex "
-            /> */}
           </button>
-          {/* this will be the button to send the data */}
           <button
             className="absolute right-3 top-1/2 transform -translate-y-1/2 "
             onClick={sendMessage}

@@ -64,7 +64,10 @@ const Chats = () => {
       const sortedChats = data.sort((a: any, b: any) => {
         if (a.unread && !b.unread) return -1;
         if (!a.unread && b.unread) return 1;
-        return new Date(b.lastMessage.sentAt).getTime() - new Date(a.lastMessage.sentAt).getTime();
+        return (
+          new Date(b.lastMessage.sentAt).getTime() -
+          new Date(a.lastMessage.sentAt).getTime()
+        );
       });
 
       setChats(sortedChats);
@@ -75,7 +78,6 @@ const Chats = () => {
   };
 
   useEffect(() => {
-  
     fetchRecentChats(currentUserId);
     // Listen for new messages
     socket.on("newMessage", (roomId: string, message: string) => {
@@ -122,17 +124,22 @@ const Chats = () => {
                 <div className="flex justify-between mb-1">
                   {/* here the time stamp */}
                   <div className="flex gap-1">
-                    <p className="text-black text-sm font-semibold">
+                    <p className="text-black text-sm font-bold">
                       {chat.receiver?.firstName || chat.sender?.firstName}
                     </p>
                     <p className="text-black text-sm font-semibold">
                       {chat.lastName}
                     </p>
                   </div>
-                  <p className="text-gray-400 text-xs "></p>
+                  <p className="text-gray-400 text-xs">
+                    {" "}
+                    {new Date(chat.lastMessage.sentAt).toLocaleTimeString()}
+                  </p>
                 </div>
                 {/* here we truncate the new message */}
-                <p className="line-clamp-1 text-sm text-black"></p>
+                <p className="line-clamp-1 text-xs text-black">
+                  {chat.lastMessage.content}
+                </p>
               </div>
             </Link>
           );

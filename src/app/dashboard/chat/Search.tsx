@@ -9,16 +9,16 @@ const Search = () => {
   const [results, setResults] = useState<UserSearch[]>([]);
   const userId = useUserStore((state) => state.userId);
 
-  
   const currentUserId = userId;
 
   const handleSearch = async (query: string) => {
     if (!query) {
+      setResults([]); // Clear results if query is empty
       return [];
     }
 
     try {
-      console.log("Trying serach");
+      console.log("Trying search");
       const response = await fetch(
         `http://localhost:3002/api/users/search?q=${query}&currentUserId=${currentUserId}`,
         {
@@ -36,7 +36,7 @@ const Search = () => {
     }
   };
 
-  //debounce function
+  // Debounce function
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (query) {
@@ -45,17 +45,17 @@ const Search = () => {
             setResults(data || []);
           }
         });
+      } else {
+        setResults([]); // Clear results if query is empty
       }
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
   }, [query]);
 
-  //generateTheRoomId
-
+  // Generate the room ID
   const generateRoomId = (userId1: string | null, userId2: string) => {
     // Convert IDs to strings in case they are numeric
-
     const [first, second] = [userId1?.toString(), userId2.toString()].sort();
     return `${first}_${second}`;
   };

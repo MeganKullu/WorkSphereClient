@@ -198,6 +198,7 @@ const ChatRoom = ({
         <div className="relative">
           <input
             type="text"
+            value={newMessage}
             placeholder="Type a message..."
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}

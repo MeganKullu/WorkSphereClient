@@ -49,7 +49,7 @@ const ChatRoom = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isFileUploading, setIsFileUploading] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false); // State for image modal
-  const [imageUrl, setImageUrl] = useState(""); 
+  const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
     const room_id = roomId;
@@ -260,8 +260,8 @@ const ChatRoom = ({
                 <div
                   className={`p-3 rounded-lg max-w-xs ${
                     message.senderId === senderId
-                      ? "bg-[#d5dbe7] text-black"
-                      : "bg-[#515282] text-white"
+                      ? "bg-[#515282] text-white"
+                      : " bg-[#d5dbe7] text-black"
                   }`}
                 >
                   {message.fileType ? (
@@ -270,7 +270,11 @@ const ChatRoom = ({
                         src={`http://localhost:3002/${message.filePath}`}
                         alt={message.content}
                         className="w-32 h-32 object-cover rounded-lg"
-                        onClick={() => handleImageClick(`http://localhost:3002/${message.filePath}`)}
+                        onClick={() =>
+                          handleImageClick(
+                            `http://localhost:3002/${message.filePath}`
+                          )
+                        }
                       />
                     ) : (
                       <div className="flex flex-row-reverse justify-between items-center mb-1 gap-4">
@@ -280,7 +284,7 @@ const ChatRoom = ({
                           rel="noopener noreferrer"
                           className="basis-1/5"
                         >
-                          <HiOutlineArrowCircleDown className="size-8 text-[#395290]"/>
+                          <HiOutlineArrowCircleDown className="size-8 text-[#395290]" />
                         </a>
                         <p className="basis-4/5 text-xs truncate max-w-full bg-slate-400 p-1 rounded-lg flex justify-center items-center">
                           <div className="basis-1/3">
@@ -295,7 +299,9 @@ const ChatRoom = ({
                             const extension = fileParts?.slice(-1);
                             return (
                               <>
-                                <span className=" basis-2/3 truncate">{name}</span>
+                                <span className=" basis-2/3 truncate">
+                                  {name}
+                                </span>
                                 {extension && <span>.{extension}</span>}
                               </>
                             );
@@ -367,7 +373,12 @@ const ChatRoom = ({
           </p>
           <p className="my-2 text-black">Files</p>
         </div>
-        <div className="w-full h-1/2 bg-[#cdd5ea] rounded-[30px]"></div>
+        <div className="w-full h-1/2 bg-[#cdd5ea] rounded-[30px] p-4">
+          <p className="text-2xl text-black text-center font-semibold">
+            Group Members
+          </p>
+          <p className="my-2 text-black">List Members here</p>
+        </div>
       </div>
       <ImageModal
         isOpen={isImageModalOpen}

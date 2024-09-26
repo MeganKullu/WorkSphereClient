@@ -43,7 +43,7 @@ const NavigationButtons = () => {
           <p className="lg:text-xs xl:text-sm">Profile</p>
         </Link>
 
-        <Link
+        {/* <Link
           href="/dashboard/tasks"
           className={`group mb-4 px-4 py-2 rounded-xl flex flex-col justify-center items-center ${
             pathname === "/dashboard/tasks"
@@ -53,7 +53,7 @@ const NavigationButtons = () => {
         >
           <HiClipboardList className="lg:size-10 xl:size-16 mb-1 xl:mb-3 text-gray-200 hover:text-white" />
           <p className="lg:text-xs xl:text-sm">Tasks</p>
-        </Link>
+        </Link> */}
 
         {isAdmin && (
           <>
@@ -68,7 +68,7 @@ const NavigationButtons = () => {
               <HiPlusCircle className="lg:size-10 xl:size-16 mb-1 xl:mb-3 text-gray-200 hover:text-white" />
               <p className="lg:text-xs xl:text-sm text-center">Create group</p>
             </Link>
-            <Link
+            {/* <Link
               href="/dashboard/admin/management"
               className={`group mb-4 px-4 py-2 rounded-xl flex flex-col justify-center items-center ${
                 pathname === "/dashboard/admin"
@@ -78,7 +78,7 @@ const NavigationButtons = () => {
             >
               <HiPlusCircle className="lg:size-10 xl:size-16 mb-1 xl:mb-3 text-gray-200 hover:text-white" />
               <p className="lg:text-xs xl:text-sm">Management</p>
-            </Link>
+            </Link> */}
           </>
         )}
       </div>

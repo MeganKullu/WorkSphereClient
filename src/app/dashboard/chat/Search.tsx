@@ -87,7 +87,9 @@ const Search = () => {
   };
 
   return (
-    <div className={`${userResults.length > 0 || cohortResults.length > 0 ? "mb-6" : ""}`}>
+    <div
+      className={`${userResults.length > 0 || cohortResults.length > 0 ? "mb-6" : ""}`}
+    >
       <form onSubmit={(e) => e.preventDefault()}>
         <input
           type="text"
@@ -97,80 +99,82 @@ const Search = () => {
           className="w-full px-5 py-3 rounded-lg bg-[#cdd5ea] my-2 text-sm text-black"
         />
       </form>
-      <ul>
-        {userResults.map((user) => {
-          const receiverId = user.id;
-          const roomId = generateRoomId(currentUserId, receiverId);
-          const encodedSenderId = encodeId(currentUserId);
-          const encodedReceiverId = encodeId(receiverId);
-          return (
-            <Link
-              href={{
-                pathname: `/dashboard/chat/${roomId}`,
-                query: {
-                  name: user.firstName,
-                  encodedSenderId,
-                  encodedReceiverId,
-                  roomId,
-                },
-              }}
-              key={user.id}
-              className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 border-b-2 border-[#cdd5ea]}`}
-              onClick={clearResults}
-            >
-              <div className="basis-1/4 rounded-lg bg-black">
-                {/* image goes here */}
-              </div>
-              <div className="basis-3/4 mx-2">
-                <div className="flex mb-1">
-                  <div className="flex gap-1">
-                    <p className="text-black text-sm font-semibold">
-                      {user.firstName}
-                    </p>
-                    <p className="text-black text-sm font-semibold">
-                      {user.lastName}
-                    </p>
-                  </div>
+      <div className="max-h-60 overflow-y-auto">
+        <ul>
+          {userResults.map((user) => {
+            const receiverId = user.id;
+            const roomId = generateRoomId(currentUserId, receiverId);
+            const encodedSenderId = encodeId(currentUserId);
+            const encodedReceiverId = encodeId(receiverId);
+            return (
+              <Link
+                href={{
+                  pathname: `/dashboard/chat/${roomId}`,
+                  query: {
+                    name: user.firstName,
+                    encodedSenderId,
+                    encodedReceiverId,
+                    roomId,
+                  },
+                }}
+                key={user.id}
+                className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 border-b-2 border-[#cdd5ea]}`}
+                onClick={clearResults}
+              >
+                <div className="basis-1/4 rounded-lg bg-black">
+                  {/* image goes here */}
                 </div>
-                {/* here we truncate the new message */}
-                <p className="line-clamp-1 text-sm text-black"></p>
-              </div>
-            </Link>
-          );
-        })}
-        {cohortResults.map((cohort) => {
-          const roomId = cohort.id;
-          return (
-            <Link
-              href={{
-                pathname: `/dashboard/chat/${roomId}`,
-                query: {
-                  name: cohort.name,
-                  roomId,
-                },
-              }}
-              key={cohort.id}
-              className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 border-b-2 border-[#cdd5ea]}`}
-              onClick={clearResults}
-            >
-              <div className="basis-1/4 rounded-lg bg-black">
-                {/* image goes here */}
-              </div>
-              <div className="basis-3/4 mx-2">
-                <div className="flex mb-1">
-                  <div className="flex gap-1">
-                    <p className="text-black text-sm font-semibold">
-                      {cohort.name}
-                    </p>
+                <div className="basis-3/4 mx-2">
+                  <div className="flex mb-1">
+                    <div className="flex gap-1">
+                      <p className="text-black text-sm font-semibold">
+                        {user.firstName}
+                      </p>
+                      <p className="text-black text-sm font-semibold">
+                        {user.lastName}
+                      </p>
+                    </div>
                   </div>
+                  {/* here we truncate the new message */}
+                  <p className="line-clamp-1 text-sm text-black"></p>
                 </div>
-                {/* here we truncate the new message */}
-                <p className="line-clamp-1 text-sm text-black"></p>
-              </div>
-            </Link>
-          );
-        })}
-      </ul>
+              </Link>
+            );
+          })}
+          {cohortResults.map((cohort) => {
+            const roomId = cohort.id;
+            return (
+              <Link
+                href={{
+                  pathname: `/dashboard/chat/${roomId}`,
+                  query: {
+                    name: cohort.name,
+                    roomId,
+                  },
+                }}
+                key={cohort.id}
+                className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 border-b-2 border-[#cdd5ea]}`}
+                onClick={clearResults}
+              >
+                <div className="basis-1/4 rounded-lg bg-black">
+                  {/* image goes here */}
+                </div>
+                <div className="basis-3/4 mx-2">
+                  <div className="flex mb-1">
+                    <div className="flex gap-1">
+                      <p className="text-black text-sm font-semibold">
+                        {cohort.name}
+                      </p>
+                    </div>
+                  </div>
+                  {/* here we truncate the new message */}
+                  <p className="line-clamp-1 text-sm text-black"></p>
+                </div>
+              </Link>
+            );
+          })}
+        </ul>
+      </div>
     </div>
   );
 };

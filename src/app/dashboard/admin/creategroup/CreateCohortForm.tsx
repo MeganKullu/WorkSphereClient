@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { toast } from 'react-toastify';
 
 const CreateCohortForm = () => {
   interface User {
@@ -12,6 +13,7 @@ const CreateCohortForm = () => {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [cohortName, setCohortName] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Fetch users from the backend
@@ -49,6 +51,7 @@ const CreateCohortForm = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
+      setLoading(true);
       const response = await fetch("http://localhost:3002/api/cohort/create", {
         method: "POST",
         headers: {
@@ -61,7 +64,11 @@ const CreateCohortForm = () => {
       });
       const data = await response.json();
       console.log("Cohort created:", data);
+      toast.success(`Cohort "${data.name}" created successfully!`);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
+      toast.error("Error creating cohort. Please try again.");
       console.error("Error creating cohort:", error);
     }
   };
@@ -74,7 +81,7 @@ const CreateCohortForm = () => {
       <div className="mb-4">
         <label
           htmlFor="cohortName"
-          className="block text-base font-bold text-[#395290]"
+          className="block text-base font-semibold text-black"
         >
           Cohort Name
         </label>
@@ -90,13 +97,14 @@ const CreateCohortForm = () => {
       <div className="mb-4">
         <label
           htmlFor="search"
-          className="block text-base font-bold text-[#395290]"
+          className="block text-base font-semibold text-black"
         >
           Search Users
         </label>
         <input
           type="text"
           id="search"
+          placeholder="Type to search users"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="mt-1 block w-full rounded-full bg[#e8ebf6] shadow-sm sm:text-sm px-5 py-2 h-10 text-black"
@@ -126,9 +134,33 @@ const CreateCohortForm = () => {
       </div>
       <button
         type="submit"
-        className="bg-[#395290] text-white rounded-full h-12 w-full text-sm font-semibold px-5 py-2"
+        className="bg-[#395290] text-white rounded-full h-12 w-full text-sm font-semibold px-5 py-2 flex items-center justify-center"
+        disabled={loading}
       >
-        Create Cohort
+        {loading ? (
+          <svg
+            className="animate-spin h-5 w-5 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+        ) : (
+          'Create Cohort'
+        )}
       </button>
     </form>
   );

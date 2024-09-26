@@ -50,7 +50,7 @@ const FileModal: React.FC<ModalProps> = ({
           </label>
         </div>
         {selectedFile && (
-          <div className="mb-4">
+          <div className="mb-4 text-black">
             <p>Selected File: {selectedFile.name}</p>
           </div>
         )}

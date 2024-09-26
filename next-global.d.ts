@@ -42,6 +42,7 @@ interface Chat {
 }
 
 interface Message {
+  fileType: any;
   id?: string;
   senderId: string | null;
   receiverId: string | null;
@@ -50,5 +51,7 @@ interface Message {
   cohortId: string | null;
   delivered: boolean;
   read: boolean;
+  fileType?: string,
+  filePath?: string,
 }
 

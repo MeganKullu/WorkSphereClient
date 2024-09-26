@@ -34,16 +34,6 @@ const ChatRoom = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleUpload = () => {
-    if (selectedFile) {
-      // Call your upload function here
-      console.log("Uploading file:", selectedFile);
-      // Reset state after upload
-      setSelectedFile(null);
-      setIsModalOpen(false);
-    }
-  };
-
   useEffect(() => {
     const room_id = roomId;
     const sender_id = senderId;
@@ -162,12 +152,56 @@ const ChatRoom = ({
     }
   };
 
+  const handleUpload = async () => {
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("senderId", senderId || "");
+      formData.append("receiverId", receiverId || "");
+      //formData.append("cohortId", cohortId || ""); we will have to figure this for groups
+
+      try {
+        const response = await fetch('http://localhost:3002/api/files/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const uploadedFile = await response.json();
+          console.log('File uploaded successfully:', uploadedFile);
+          // Display the uploaded file in the chat room window
+          const fileMessage: Message = {
+            id: uploadedFile.id,
+            senderId: uploadedFile.senderId,
+            receiverId: uploadedFile.receiverId,
+            content: uploadedFile.fileName,
+            cohortId: null,
+            sendAt: uploadedFile.createdAt,
+            delivered: false,
+            read: false,
+            fileType: uploadedFile.fileType,
+            filePath: uploadedFile.filePath,
+          };
+          addMessage(roomId, fileMessage);
+          // Reset state after upload
+          setSelectedFile(null);
+          setIsModalOpen(false);
+          scrollToBottom();
+        } else {
+          console.error('Failed to upload file');
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      }
+    }
+  };
+
   return (
     <div className="flex h-full w-full gap-2 xl:gap-4">
       <div className="w-2/3 h-full bg-[#e8ebf6] rounded-r-[30px] py-4 px-6 flex flex-col">
         <div className="flex justify-between">
           <p className="text-black text-2xl font-semibold">{name}</p>
-          <p className="text-black">online</p>
+          <p className="text-black">{isOnline ? "online" : "offline"}</p>
         </div>
         <div
           className="flex-grow mt-4 space-y-4 overflow-y-auto no-scrollbar"
@@ -188,20 +222,39 @@ const ChatRoom = ({
               >
                 <div
                   className={`p-3 rounded-lg max-w-xs ${
-                    message.receiverId === senderId
+                    message.senderId === senderId
                       ? "bg-[#d5dbe7] text-black"
                       : "bg-[#515282] text-white"
                   }`}
                 >
-                  <p className="text-sm">{message.content}</p>
+                  {message.fileType ? (
+                    message.fileType.startsWith('image/') ? (
+                      <img
+                        src={`http://localhost:3002/${message.filePath}`}
+                        alt={message.content}
+                        className="max-w-xs"
+                      />
+                    ) : (
+                      <a
+                        href={`http://localhost:3002/${message.filePath}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 underline"
+                      >
+                        {message.content}
+                      </a>
+                    )
+                  ) : (
+                    <p className="text-sm">{message.content}</p>
+                  )}
                   <div className="flex justify-between gap-4">
                     {message.senderId === senderId && (
                       <p className="text-gray-400 text-xs">
                         {message.read
                           ? "read"
                           : message.delivered
-                            ? "✔✔"
-                            : "✔"}
+                          ? "✔✔"
+                          : "✔"}
                       </p>
                     )}
                     <p className="text-gray-300 text-xs">
@@ -240,6 +293,7 @@ const ChatRoom = ({
             selectedFile={selectedFile}
             onUpload={handleUpload}
           />
+
           <button
             className="absolute right-3 top-1/2 transform -translate-y-1/2 "
             onClick={sendMessage}

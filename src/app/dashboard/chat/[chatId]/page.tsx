@@ -39,6 +39,7 @@ const ChatDetail = ({ params }: { params: { roomId: string } }) => {
       return data;
     } catch (error) {
       console.error("Error fetching chat data", error);
+      return [];
     }
   };
 

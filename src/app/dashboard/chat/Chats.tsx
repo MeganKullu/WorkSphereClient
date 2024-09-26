@@ -129,13 +129,13 @@ const Chats = () => {
                       isOnline: isOnline ? "true" : "false",
                     },
                   }}
-                  className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 ${
+                  className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] mb-1 ${
                     pathname === `/dashboard/chat/${roomId}`
                       ? "bg-[#d5dbe7]"
                       : "hover:bg-[#d5dbe7]"
                   }`}
                 >
-                  <div className="basis-1/4 rounded-lg bg-black">
+                  <div className="w-14 h-14 rounded-lg bg-black">
                     {/* image goes here */}
                   </div>
                   <div className="basis-3/4 mx-2">

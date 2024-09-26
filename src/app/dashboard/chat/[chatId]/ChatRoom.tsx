@@ -316,13 +316,9 @@ const ChatRoom = ({
                             : "✔"}
                       </p>
                     )}
-                    <p className="text-gray-300 text-xs">
+                    <p className="text-black text-xs">
                       {/* problem here invalid date */}
-                      {new Date(message.sendAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                      })}
+                      {message.sendAt}
                     </p>
                   </div>
                 </div>
@@ -365,10 +361,11 @@ const ChatRoom = ({
         </div>
       </div>
       <div className="w-1/3 h-full flex flex-col gap-2">
-        <div className="w-full h-1/2 bg-white rounded-[30px]">
-          <p className="text-2xl text-black text-center font-semibold p-4">
+        <div className="w-full h-1/2 bg-white rounded-[30px] p-4">
+          <p className="text-2xl text-black text-center font-semibold">
             Chat Info
           </p>
+          <p className="my-2 text-black">Files</p>
         </div>
         <div className="w-full h-1/2 bg-[#cdd5ea] rounded-[30px]"></div>
       </div>

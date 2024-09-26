@@ -33,6 +33,7 @@ const ChatRoom = ({
   const [isUserOnline, setIsUserOnline] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [ isFileUploading, setIsFileUploading ] = useState(false);
 
   useEffect(() => {
     const room_id = roomId;
@@ -154,6 +155,7 @@ const ChatRoom = ({
 
   const handleUpload = async () => {
     if (selectedFile) {
+      setIsFileUploading(true);
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("senderId", senderId || "");
@@ -165,9 +167,6 @@ const ChatRoom = ({
           method: 'POST',
           body: formData,
         });
-        const data = await response.json();
-        console.log('datafile', data);
-        console.log('responsefile', response);
 
         if (response.ok) {
           const uploadedFile = await response.json();
@@ -189,15 +188,20 @@ const ChatRoom = ({
           // Reset state after upload
           setSelectedFile(null);
           setIsModalOpen(false);
+          setIsFileUploading(false);
           scrollToBottom();
         } else {
           console.error('Failed to upload file');
+          setIsFileUploading(false);
         }
       } catch (error) {
         console.error('Error uploading file:', error);
+        setIsFileUploading(false);
       }
     }
   };
+
+  
 
   return (
     <div className="flex h-full w-full gap-2 xl:gap-4">
@@ -295,6 +299,7 @@ const ChatRoom = ({
             onFileSelect={setSelectedFile}
             selectedFile={selectedFile}
             onUpload={handleUpload}
+            isFileUploading={isFileUploading}
           />
 
           <button
@@ -306,7 +311,8 @@ const ChatRoom = ({
         </div>
       </div>
       <div className="w-1/3 h-full flex flex-col gap-2">
-        <div className="w-full h-1/2 bg-white rounded-[30px]"></div>
+        <div className="w-full h-1/2 bg-white rounded-[30px]">
+        <p className="text-2xl text-black text-center font-semibold p-4">Chat Info</p></div>
         <div className="w-full h-1/2 bg-[#cdd5ea] rounded-[30px]"></div>
       </div>
     </div>

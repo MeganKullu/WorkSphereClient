@@ -16,7 +16,7 @@ const page = () => {
     
   
     const loginData = await response.json();
-    return loginData.userId;
+    return { id: loginData.userId , role: loginData.userRole, name: loginData.user }; ;
     
   };
 

@@ -2,6 +2,7 @@
 
 import useUserStore from "@/stores/user/UseUserStore";
 import { useRouter } from "next/navigation";
+import { stringify } from "querystring";
 import { useState, useEffect, useContext } from "react";
 import { useForm } from "react-hook-form";
 
@@ -14,10 +15,9 @@ const Login: React.FC<LoginProps> = ({ onSubmit }) => {
   const [showPassword, setShowPassword] = useState(false);
   const setUserId = useUserStore((state: any) => state.setUserId);
   const userId = useUserStore((state: any) => state.userId);
+  const isAdmin = useUserStore((state: any) => state.isAdmin);
   const router = useRouter();
  
-
-
   const {
     register,
     handleSubmit,
@@ -27,9 +27,12 @@ const Login: React.FC<LoginProps> = ({ onSubmit }) => {
   const handleFormSubmit = async (data: LoginFormData) => {
     setLoading(true);
     await onSubmit(data)
-      .then((data: string) => {
-        console.log("userId", data);
-       setUserId(data);
+      .then(({id, role, name}: { id: string, role: string, name: string}) => {
+       setUserId(id);
+       const isAdmin = role === "ADMIN";
+       sessionStorage.setItem("isAdmin", JSON.stringify(isAdmin));
+       useUserStore.getState().setIsAdmin(isAdmin);
+       setLoading(false);
        
       }).then(() => {
         router.push("/dashboard/chat");

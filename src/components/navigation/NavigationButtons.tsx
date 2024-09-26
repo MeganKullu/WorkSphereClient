@@ -5,12 +5,15 @@ import {
   HiUserCircle,
   HiClipboardList,
   HiLogout,
+  HiPlusCircle,
+  HiOutlineUsers,
 } from "react-icons/hi";
 
 import { usePathname } from "next/navigation";
+import useUserStore from "@/stores/user/UseUserStore";
 
 const NavigationButtons = () => {
-
+  const isAdmin = useUserStore((state: any) => state.isAdmin);
   const pathname = usePathname();
 
   return (
@@ -19,7 +22,7 @@ const NavigationButtons = () => {
         <Link
           href="/dashboard/chat"
           className={`group mb-4 px-4 py-2 rounded-xl flex flex-col justify-center items-center ${
-           pathname === "/dashboard/chat"
+            pathname === "/dashboard/chat"
               ? "bg-[#cfcece]"
               : "hover:bg-[#cfcece]"
           }`}
@@ -31,7 +34,7 @@ const NavigationButtons = () => {
         <Link
           href="/dashboard/profile"
           className={`group mb-4 px-4 py-2 rounded-xl flex flex-col justify-center items-center ${
-           pathname === "/dashboard/profile"
+            pathname === "/dashboard/profile"
               ? "bg-[#cfcece]"
               : "hover:bg-[#cfcece]"
           }`}
@@ -43,7 +46,7 @@ const NavigationButtons = () => {
         <Link
           href="/dashboard/tasks"
           className={`group mb-4 px-4 py-2 rounded-xl flex flex-col justify-center items-center ${
-           pathname === "/dashboard/tasks"
+            pathname === "/dashboard/tasks"
               ? "bg-[#cfcece]"
               : "hover:bg-[#cfcece]"
           }`}
@@ -51,6 +54,33 @@ const NavigationButtons = () => {
           <HiClipboardList className="lg:size-10 xl:size-16 mb-1 xl:mb-3 text-gray-200 hover:text-white" />
           <p className="lg:text-xs xl:text-sm">Tasks</p>
         </Link>
+
+        {isAdmin && (
+          <>
+            <Link
+              href="/dashboard/admin/creategroup"
+              className={`group mb-4 px-4 py-2 rounded-xl flex flex-col justify-center items-center ${
+                pathname === "/dashboard/admin"
+                  ? "bg-[#cfcece]"
+                  : "hover:bg-[#cfcece]"
+              }`}
+            >
+              <HiPlusCircle className="lg:size-10 xl:size-16 mb-1 xl:mb-3 text-gray-200 hover:text-white" />
+              <p className="lg:text-xs xl:text-sm text-center">Create group</p>
+            </Link>
+            <Link
+              href="/dashboard/admin/management"
+              className={`group mb-4 px-4 py-2 rounded-xl flex flex-col justify-center items-center ${
+                pathname === "/dashboard/admin"
+                  ? "bg-[#cfcece]"
+                  : "hover:bg-[#cfcece]"
+              }`}
+            >
+              <HiPlusCircle className="lg:size-10 xl:size-16 mb-1 xl:mb-3 text-gray-200 hover:text-white" />
+              <p className="lg:text-xs xl:text-sm">Management</p>
+            </Link>
+          </>
+        )}
       </div>
 
       <div className="mt-auto justify-end">

@@ -25,14 +25,17 @@ const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
 
   const handleFormSubmit = async (data: FormData) => {
     setLoading(true);
-    await onSubmit(data).then(({ id, role}: { id: string, role: string}) => {
-      setUserId(id);
-      const isAdmin = role === "ADMIN";
-      sessionStorage.setItem('isAdmin', JSON.stringify(isAdmin));
-      useUserStore.getState().setIsAdmin(isAdmin);
-    } );
-    setLoading(false);
-    router.push("/dashboard/chat");
+    await onSubmit(data)
+      .then(({ id, role }: { id: string; role: string }) => {
+        setUserId(id);
+        const isAdmin = role === "ADMIN";
+        sessionStorage.setItem("isAdmin", JSON.stringify(isAdmin));
+        useUserStore.getState().setIsAdmin(isAdmin);
+        setLoading(false);
+      })
+      .then(() => {
+        router.push("/dashboard/chat");
+      });
   };
 
   return (

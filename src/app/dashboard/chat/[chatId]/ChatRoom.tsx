@@ -165,6 +165,9 @@ const ChatRoom = ({
           method: 'POST',
           body: formData,
         });
+        const data = await response.json();
+        console.log('datafile', data);
+        console.log('responsefile', response);
 
         if (response.ok) {
           const uploadedFile = await response.json();

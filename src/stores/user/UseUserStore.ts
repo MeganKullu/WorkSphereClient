@@ -3,7 +3,9 @@ import { persist, PersistStorage } from 'zustand/middleware';
 
 interface UserState {
   userId: string | null;
+  isAdmin: boolean;
   setUserId: (id: string, callback?: () => void) => void;
+  setIsAdmin: (isAdmin: boolean, callback?: () => void) => void;
 }
 
 const sessionStoragePersist: PersistStorage<UserState> = {
@@ -26,9 +28,15 @@ const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
       userId: get()?.userId || null,
+      isAdmin: get()?.isAdmin || false,
       setUserId: (id: string, callback?: () => void) => {
         console.log(`Setting userId in state: ${id}`);
         set({ userId: id });
+        if (callback) callback();
+      },
+      setIsAdmin: (isAdmin: boolean, callback?: () => void) => {
+        console.log(`Setting isAdmin in state: ${isAdmin}`);
+        set({ isAdmin });
         if (callback) callback();
       },
     }),
@@ -38,5 +46,6 @@ const useUserStore = create<UserState>()(
     }
   )
 );
+
 
 export default useUserStore;

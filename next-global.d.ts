@@ -6,6 +6,7 @@ interface FormData {
   password: string;
   role: string;
   phone: string;
+  adminCode?: string,
 }
 
 interface SignupProps {
@@ -53,5 +54,6 @@ interface Message {
   read: boolean;
   fileType?: string,
   filePath?: string,
+ 
 }
 

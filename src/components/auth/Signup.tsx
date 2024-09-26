@@ -13,6 +13,7 @@ import useUserStore from "@/stores/user/UseUserStore";
 const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<string>("");
   const setUserId = useUserStore((state: any) => state.setUserId);
   const router = useRouter();
 
@@ -24,7 +25,12 @@ const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
 
   const handleFormSubmit = async (data: FormData) => {
     setLoading(true);
-    await onSubmit(data).then((userId: string) => setUserId(userId));
+    await onSubmit(data).then(({ id, role}: { id: string, role: string}) => {
+      setUserId(id);
+      const isAdmin = role === "ADMIN";
+      sessionStorage.setItem('isAdmin', JSON.stringify(isAdmin));
+      useUserStore.getState().setIsAdmin(isAdmin);
+    } );
     setLoading(false);
     router.push("/dashboard/chat");
   };
@@ -131,14 +137,33 @@ const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
         <select
           className="bg-[#e8ebf6] rounded-full h-12 w-full mb-3 text-sm px-5 py-2 focus:border-[#a1b2d8] text-black p-2"
           {...register("role", { required: true })}
+          onChange={(e) => setSelectedRole(e.target.value)}
         >
           <option value="">Select Role</option>
           <option value="USER">Intern/ Attachee</option>
+          <option value="ADMIN">Admin</option>
         </select>
         {errors.role && (
           <p className="text-red-500 text-xs ml-2 -mt-3 mb-1">
             Please select a role.
           </p>
+        )}
+
+        {selectedRole === "ADMIN" && (
+          <div className="mb-3">
+            <input
+              placeholder="Admin Code"
+              type="number"
+              id="adminCode"
+              className="bg-[#cdd5ea] rounded-full h-12 w-full mb-3 text-sm px-5 py-2 focus:border-[#a1b2d8] text-black p-2"
+              {...register("adminCode", { required: true })}
+            />
+            {errors.adminCode && (
+              <p className="text-red-500 text-xs ml-2 -mt-3 mb-1">
+                Please enter the admin code.
+              </p>
+            )}
+          </div>
         )}
 
         <button

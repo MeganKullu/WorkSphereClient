@@ -43,29 +43,25 @@ const ChatDetail = ({ params }: { params: { roomId: string } }) => {
     }
   };
 
-  //file upload
+  const fetchFiles = async (
+    senderId: string | null,
+    receiverId: string | null,
+    page: number,
+    limit: number
+  ) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3002/api/files/${senderId}/${receiverId}?page=${page}&limit=${limit}`
+      );
 
-  // const sendFile = (file, senderId, receiverId, cohortId) => {
-  //   const reader = new FileReader();
-
-  //   reader.onload = (event) => {
-  //     const fileBuffer = event.target.result; // Get file as binary buffer
-
-  //     socket.emit('send_file', {
-  //       senderId,
-  //       receiverId,
-  //       cohortId,
-  //       fileBuffer,
-  //       fileName: file.name,
-  //       fileType: file.type,
-  //     });
-  //   };
-
-  //   reader.readAsArrayBuffer(file); // Read file as ArrayBuffer
-  // };
-
-  // we will call the db with the chat data here and map over
-  // here we will also add the chat details
+      const data = await response.json();
+      console.log("file data", data);
+      return data;
+    } catch (error) {
+      console.error("Error fetching file data", error);
+      return [];
+    }
+  };
 
   return (
     <ChatRoom
@@ -75,6 +71,7 @@ const ChatDetail = ({ params }: { params: { roomId: string } }) => {
       roomId={roomId}
       name={name}
       isOnline={isOnline}
+      fetchFiles={fetchFiles}
     />
   );
 };

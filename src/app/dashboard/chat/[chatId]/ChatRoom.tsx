@@ -1,13 +1,20 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import { HiOutlineLink, HiOutlineArrowCircleRight } from "react-icons/hi";
+import {
+  HiOutlineLink,
+  HiOutlineArrowCircleRight,
+  HiOutlineArrowCircleDown,
+  HiDocument,
+} from "react-icons/hi";
 import useChatStore from "@/stores/chat/useChatStore";
 import FileModal from "./FileModal";
+import ImageModal from "./ImageModal";
 
 const ChatRoom = ({
   senderId,
   receiverId,
   fetchMessages,
+  fetchFiles,
   roomId,
   name,
   isOnline,
@@ -20,6 +27,13 @@ const ChatRoom = ({
     page: number,
     limit: number
   ) => Promise<any>;
+  fetchFiles: (
+    senderId: string | null,
+    receiverId: string | null,
+    page: number,
+    limit: number
+  ) => Promise<any>;
+
   roomId: string;
   name: string | null | undefined;
   isOnline: string | null | undefined;
@@ -33,7 +47,9 @@ const ChatRoom = ({
   const [isUserOnline, setIsUserOnline] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [ isFileUploading, setIsFileUploading ] = useState(false);
+  const [isFileUploading, setIsFileUploading] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false); // State for image modal
+  const [imageUrl, setImageUrl] = useState(""); 
 
   useEffect(() => {
     const room_id = roomId;
@@ -53,7 +69,18 @@ const ChatRoom = ({
           page,
           limit
         );
-        setRoomMessages(roomId, fetchedMessages || []);
+        const fetchedFiles = await fetchFiles(
+          senderId,
+          receiverId,
+          page,
+          limit
+        );
+        const combinedData = [...fetchedMessages, ...fetchedFiles].sort(
+          (a, b) =>
+            new Date(a.sentAt || a.createdAt).getTime() -
+            new Date(b.sentAt || b.createdAt).getTime()
+        );
+        setRoomMessages(roomId, combinedData || []);
       } catch (error) {
         console.error("Failed to fetch messages:", error);
         setRoomMessages(roomId, []);
@@ -163,14 +190,14 @@ const ChatRoom = ({
       //formData.append("cohortId", cohortId || ""); we will have to figure this for groups
 
       try {
-        const response = await fetch('http://localhost:3002/api/files/upload', {
-          method: 'POST',
+        const response = await fetch("http://localhost:3002/api/files/upload", {
+          method: "POST",
           body: formData,
         });
 
         if (response.ok) {
           const uploadedFile = await response.json();
-          console.log('File uploaded successfully:', uploadedFile);
+          console.log("File uploaded successfully:", uploadedFile);
           // Display the uploaded file in the chat room window
           const fileMessage: Message = {
             id: uploadedFile.id,
@@ -191,17 +218,20 @@ const ChatRoom = ({
           setIsFileUploading(false);
           scrollToBottom();
         } else {
-          console.error('Failed to upload file');
+          console.error("Failed to upload file");
           setIsFileUploading(false);
         }
       } catch (error) {
-        console.error('Error uploading file:', error);
+        console.error("Error uploading file:", error);
         setIsFileUploading(false);
       }
     }
   };
 
-  
+  const handleImageClick = (url: string) => {
+    setImageUrl(url);
+    setIsImageModalOpen(true);
+  };
 
   return (
     <div className="flex h-full w-full gap-2 xl:gap-4">
@@ -235,21 +265,43 @@ const ChatRoom = ({
                   }`}
                 >
                   {message.fileType ? (
-                    message.fileType.startsWith('image/') ? (
+                    message.fileType.startsWith("image/") ? (
                       <img
                         src={`http://localhost:3002/${message.filePath}`}
                         alt={message.content}
-                        className="max-w-xs"
+                        className="w-32 h-32 object-cover rounded-lg"
+                        onClick={() => handleImageClick(`http://localhost:3002/${message.filePath}`)}
                       />
                     ) : (
-                      <a
-                        href={`http://localhost:3002/${message.filePath}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 underline"
-                      >
-                        {message.content}
-                      </a>
+                      <div className="flex flex-row-reverse justify-between items-center mb-1 gap-4">
+                        <a
+                          href={`http://localhost:3002/${message.filePath}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="basis-1/5"
+                        >
+                          <HiOutlineArrowCircleDown className="size-8 text-[#395290]"/>
+                        </a>
+                        <p className="basis-4/5 text-xs truncate max-w-full bg-slate-400 p-1 rounded-lg flex justify-center items-center">
+                          <div className="basis-1/3">
+                            <HiDocument className="size-8 text-slate-300" />
+                          </div>
+                          {(() => {
+                            const fileName = message?.filePath
+                              ?.split("/")
+                              .pop();
+                            const fileParts = fileName?.split(".");
+                            const name = fileParts?.slice(0, -1).join(".");
+                            const extension = fileParts?.slice(-1);
+                            return (
+                              <>
+                                <span className=" basis-2/3 truncate">{name}</span>
+                                {extension && <span>.{extension}</span>}
+                              </>
+                            );
+                          })()}
+                        </p>
+                      </div>
                     )
                   ) : (
                     <p className="text-sm">{message.content}</p>
@@ -260,14 +312,16 @@ const ChatRoom = ({
                         {message.read
                           ? "read"
                           : message.delivered
-                          ? "✔✔"
-                          : "✔"}
+                            ? "✔✔"
+                            : "✔"}
                       </p>
                     )}
                     <p className="text-gray-300 text-xs">
+                      {/* problem here invalid date */}
                       {new Date(message.sendAt).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
+                        hour12: true,
                       })}
                     </p>
                   </div>
@@ -312,9 +366,17 @@ const ChatRoom = ({
       </div>
       <div className="w-1/3 h-full flex flex-col gap-2">
         <div className="w-full h-1/2 bg-white rounded-[30px]">
-        <p className="text-2xl text-black text-center font-semibold p-4">Chat Info</p></div>
+          <p className="text-2xl text-black text-center font-semibold p-4">
+            Chat Info
+          </p>
+        </div>
         <div className="w-full h-1/2 bg-[#cdd5ea] rounded-[30px]"></div>
       </div>
+      <ImageModal
+        isOpen={isImageModalOpen}
+        onClose={() => setIsImageModalOpen(false)}
+        imageUrl={imageUrl}
+      />
     </div>
   );
 };

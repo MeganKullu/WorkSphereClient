@@ -1,8 +1,14 @@
 "use client";
+import useUserStore from "@/stores/user/UseUserStore";
 import { useState, useEffect } from "react";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
-const CreateCohortForm = () => {
+interface CreateCohortFormProps {
+  currentUserId: string | null;
+}
+
+const CreateCohortForm: React.FC<CreateCohortFormProps> = ({
+}) => {
   interface User {
     id: string;
     firstName: string;
@@ -14,6 +20,10 @@ const CreateCohortForm = () => {
   const [cohortName, setCohortName] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const currentUserId = useUserStore((state) => state.userId);
+  console.log("currentUserId", currentUserId);
+
 
   useEffect(() => {
     // Fetch users from the backend
@@ -38,7 +48,7 @@ const CreateCohortForm = () => {
     };
 
     fetchUsers();
-  }, []);
+  }, [currentUserId]);
 
   const handleUserSelect = (userId: string) => {
     setSelectedUsers((prevSelectedUsers) =>
@@ -59,12 +69,16 @@ const CreateCohortForm = () => {
         },
         body: JSON.stringify({
           name: cohortName,
-          members: selectedUsers,
+          members: [...selectedUsers, currentUserId], 
+          currentUserId,// Here we are adding the creater to the members of the group
         }),
       });
       const data = await response.json();
       console.log("Cohort created:", data);
       toast.success(`Cohort "${data.name}" created successfully!`);
+      setCohortName("");
+      setSelectedUsers([]);
+      setSearchTerm("");
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -159,7 +173,7 @@ const CreateCohortForm = () => {
             ></path>
           </svg>
         ) : (
-          'Create Cohort'
+          "Create Cohort"
         )}
       </button>
     </form>

@@ -105,8 +105,9 @@ const Chats = () => {
       <AnimatePresence>
         {recentChats &&
           recentChats.map((chat: any) => {
+            const isCohortChat = chat.cohortId !== undefined;
             const receiverId = chat.receiver?.id || chat.sender?.id;
-            const roomId = generateRoomId(currentUserId, receiverId);
+            const roomId = isCohortChat ? chat.cohortId : generateRoomId(currentUserId, chat.receiver?.id || chat.sender?.id);
             const encodedSenderId = encodeId(currentUserId);
             const encodedReceiverId = encodeId(receiverId);
             const isOnline = onlineUsers[receiverId];
@@ -142,7 +143,7 @@ const Chats = () => {
                     <div className="flex justify-between mb-1">
                       <div className="flex gap-1">
                         <p className="text-black text-sm font-bold">
-                          {chat.receiver?.firstName || chat.sender?.firstName}
+                          {chat.receiver?.firstName || chat.sender?.firstName || chat.cohort?.name}
                         </p>
                         <p className="text-black text-sm font-semibold">
                           {chat.lastName}

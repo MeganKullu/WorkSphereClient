@@ -4,17 +4,34 @@ import useUserStore from "@/stores/user/UseUserStore";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
+interface UserSearch {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  role: string;
+}
+
+interface CohortSearch {
+  id: string;
+  name: string;
+  createdAt: string;
+}
+
 const Search = () => {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<UserSearch[]>([]);
+  const [userResults, setUserResults] = useState<UserSearch[]>([]);
+  const [cohortResults, setCohortResults] = useState<CohortSearch[]>([]);
   const userId = useUserStore((state) => state.userId);
 
   const currentUserId = userId;
 
   const handleSearch = async (query: string) => {
     if (!query) {
-      setResults([]); // Clear results if query is empty
-      return [];
+      setUserResults([]); // Clear results if query is empty
+      setCohortResults([]); // Clear results if query is empty
+      return;
     }
 
     try {
@@ -30,7 +47,9 @@ const Search = () => {
       );
 
       const data = await response.json();
-      return data;
+      const { users, cohorts } = data;
+      setUserResults(users);
+      setCohortResults(cohorts);
     } catch (error) {
       console.error("Error fetching search results:", error);
     }
@@ -40,13 +59,10 @@ const Search = () => {
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (query) {
-        handleSearch(query).then((data) => {
-          if (data) {
-            setResults(data || []);
-          }
-        });
+        handleSearch(query);
       } else {
-        setResults([]); // Clear results if query is empty
+        setUserResults([]); // Clear results if query is empty
+        setCohortResults([]); // Clear results if query is empty
       }
     }, 300);
 
@@ -65,12 +81,13 @@ const Search = () => {
   };
 
   const clearResults = () => {
-    setResults([]);
+    setUserResults([]);
+    setCohortResults([]);
     setQuery("");
   };
 
   return (
-    <div className={`${results.length > 0 ? "mb-6" : ""}`}>
+    <div className={`${userResults.length > 0 || cohortResults.length > 0 ? "mb-6" : ""}`}>
       <form onSubmit={(e) => e.preventDefault()}>
         <input
           type="text"
@@ -81,7 +98,7 @@ const Search = () => {
         />
       </form>
       <ul>
-        {results.map((user) => {
+        {userResults.map((user) => {
           const receiverId = user.id;
           const roomId = generateRoomId(currentUserId, receiverId);
           const encodedSenderId = encodeId(currentUserId);
@@ -112,6 +129,38 @@ const Search = () => {
                     </p>
                     <p className="text-black text-sm font-semibold">
                       {user.lastName}
+                    </p>
+                  </div>
+                </div>
+                {/* here we truncate the new message */}
+                <p className="line-clamp-1 text-sm text-black"></p>
+              </div>
+            </Link>
+          );
+        })}
+        {cohortResults.map((cohort) => {
+          const roomId = cohort.id;
+          return (
+            <Link
+              href={{
+                pathname: `/dashboard/chat/${roomId}`,
+                query: {
+                  name: cohort.name,
+                  roomId,
+                },
+              }}
+              key={cohort.id}
+              className={`group rounded-lg py-2 px-3 flex hover:bg-[#d5dbe7] h-16 border-b-2 border-[#cdd5ea]}`}
+              onClick={clearResults}
+            >
+              <div className="basis-1/4 rounded-lg bg-black">
+                {/* image goes here */}
+              </div>
+              <div className="basis-3/4 mx-2">
+                <div className="flex mb-1">
+                  <div className="flex gap-1">
+                    <p className="text-black text-sm font-semibold">
+                      {cohort.name}
                     </p>
                   </div>
                 </div>

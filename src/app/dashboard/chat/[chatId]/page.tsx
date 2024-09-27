@@ -1,4 +1,3 @@
-// pages/dashboard/chat/[chatId].tsx
 "use client";
 import React from "react";
 import ChatRoom from "./ChatRoom";
@@ -26,14 +25,21 @@ const ChatDetail = ({ params }: { params: { roomId: string } }) => {
   const fetchMessages = async (
     senderId: string | null,
     receiverId: string | null,
+    roomId: string,
     page: number,
     limit: number
   ) => {
     try {
-      const response = await fetch(
-        `http://localhost:3002/api/messages/users/${senderId}/${receiverId}?page=${page}&limit=${limit}`
-      );
+      let url;
+      if (roomId.includes('_')) {
+        // Fetch messages between users
+        url = `http://localhost:3002/api/messages/users/${senderId}/${receiverId}?page=${page}&limit=${limit}`;
+      } else {
+        // Fetch messages for a cohort
+        url = `http://localhost:3002/api/messages/cohort/${roomId}?page=${page}&limit=${limit}`;
+      }
 
+      const response = await fetch(url);
       const data = await response.json();
       console.log("chat data", data);
       return data;
@@ -46,32 +52,39 @@ const ChatDetail = ({ params }: { params: { roomId: string } }) => {
   const fetchFiles = async (
     senderId: string | null,
     receiverId: string | null,
-    page: number,
-    limit: number
+    roomId: string
   ) => {
     try {
-      const response = await fetch(
-        `http://localhost:3002/api/files/${senderId}/${receiverId}?page=${page}&limit=${limit}`
-      );
+      let url;
+      if (roomId.includes('_')) {
+        // Fetch files between users
+        url = `http://localhost:3002/api/files/${senderId}/${receiverId}`;
+      } else {
+        // Fetch files for a cohort
+        url = `http://localhost:3002/api/files/cohort/${roomId}`;
+      }
 
+      const response = await fetch(url);
       const data = await response.json();
       console.log("file data", data);
-      return data;
+      
+      return Array.isArray(data) ? data : [];
     } catch (error) {
       console.error("Error fetching file data", error);
       return [];
     }
   };
 
+ 
   return (
     <ChatRoom
       senderId={senderId}
       receiverId={receiverId}
-      fetchMessages={fetchMessages}
+      fetchMessages={(page, limit) => fetchMessages(senderId, receiverId, roomId, page, limit)}
       roomId={roomId}
       name={name}
       isOnline={isOnline}
-      fetchFiles={fetchFiles}
+      fetchFiles={() => fetchFiles(senderId, receiverId, roomId)}
     />
   );
 };

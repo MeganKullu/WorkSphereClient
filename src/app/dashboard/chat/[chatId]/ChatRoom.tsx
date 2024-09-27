@@ -21,19 +21,8 @@ const ChatRoom = ({
 }: {
   senderId: string | null;
   receiverId: string | null;
-  fetchMessages: (
-    senderId: string | null,
-    receiverId: string | null,
-    page: number,
-    limit: number
-  ) => Promise<any>;
-  fetchFiles: (
-    senderId: string | null,
-    receiverId: string | null,
-    page: number,
-    limit: number
-  ) => Promise<any>;
-
+  fetchMessages: (page: number, limit: number) => Promise<any>;
+  fetchFiles: (page: number, limit: number) => Promise<any>;
   roomId: string;
   name: string | null | undefined;
   isOnline: string | null | undefined;
@@ -53,28 +42,11 @@ const ChatRoom = ({
 
   useEffect(() => {
     const room_id = roomId;
-    const sender_id = senderId;
-    const receiver_id = receiverId;
 
-    const fetchMessageData = async (
-      senderId: string | null,
-      receiverId: string | null,
-      page: number,
-      limit: number
-    ) => {
+    const fetchMessageData = async (page: number, limit: number) => {
       try {
-        const fetchedMessages = await fetchMessages(
-          senderId,
-          receiverId,
-          page,
-          limit
-        );
-        const fetchedFiles = await fetchFiles(
-          senderId,
-          receiverId,
-          page,
-          limit
-        );
+        const fetchedMessages = await fetchMessages(page, limit);
+        const fetchedFiles = await fetchFiles(page, limit);
         const combinedData = [...fetchedMessages, ...fetchedFiles].sort(
           (a, b) =>
             new Date(a.sentAt || a.createdAt).getTime() -
@@ -87,7 +59,7 @@ const ChatRoom = ({
       }
     };
 
-    fetchMessageData(sender_id, receiver_id, page, 30);
+    fetchMessageData(page, 30);
 
     socket.emit("join_room", room_id);
 
@@ -118,7 +90,7 @@ const ChatRoom = ({
     return () => {
       socket.emit("leave_room", roomId);
     };
-  }, [roomId, senderId, receiverId, page]);
+  }, [roomId, page]);
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
@@ -131,12 +103,7 @@ const ChatRoom = ({
       const { scrollTop } = scrollContainerRef.current;
       if (scrollTop === 0 && !loading) {
         setLoading(true);
-        const newMessages = await fetchMessages(
-          senderId,
-          receiverId,
-          page + 1,
-          30
-        );
+        const newMessages = await fetchMessages(page + 1, 30);
         if (newMessages && newMessages.length > 0) {
           setRoomMessages((prevMessages: any[]) => [
             ...newMessages,
@@ -152,11 +119,13 @@ const ChatRoom = ({
   const sendMessage = () => {
     if (!newMessage.trim()) return;
 
+    const isCohortChat = !roomId.includes('_'); 
+
     const messageData: Message = {
       senderId, // will be the id of the current logged in user
-      receiverId, // will be the id of the receiver
+      receiverId: isCohortChat ? null : receiverId, // Set receiverId for direct messages
       content: newMessage,
-      cohortId: null, // Replace with actual cohort ID if applicable
+      cohortId: isCohortChat ? roomId : null, // Use roomId as cohortId for cohort messages
       sendAt: new Date().toISOString(),
       delivered: false,
       read: false,
@@ -169,6 +138,7 @@ const ChatRoom = ({
     });
 
     socket.emit("send_message", messageData);
+    console.log("Message sent:", messageData);
     setNewMessage("");
     scrollToBottom();
   };
@@ -318,13 +288,12 @@ const ChatRoom = ({
                         {message.read
                           ? "read"
                           : message.delivered
-                            ? "✔✔"
-                            : "✔"}
+                          ? "✔✔"
+                          : "✔"}
                       </p>
                     )}
                     <p className="text-black text-xs">
-                      {/* problem here invalid date */}
-                      {message.sendAt}
+                      {new Date(message.sendAt).toLocaleTimeString()}
                     </p>
                   </div>
                 </div>

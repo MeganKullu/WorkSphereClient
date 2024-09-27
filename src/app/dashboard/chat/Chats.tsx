@@ -59,6 +59,7 @@ const Chats = () => {
 
       setChats(sortedChats);
       setRecentChats(sortedChats);
+
       console.log("Recent chats:", sortedChats);
     } catch (error) {
       console.error("Failed to fetch recent chats:", error);

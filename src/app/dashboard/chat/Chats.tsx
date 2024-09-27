@@ -1,6 +1,3 @@
-// here we will map over  all over the chats and and a on click function that will update the chat window
-// we will use the active buttons to show the active chat
-// remember to encode the room ids then decode them later
 "use client";
 
 import Link from "next/link";
@@ -105,9 +102,9 @@ const Chats = () => {
       <AnimatePresence>
         {recentChats &&
           recentChats.map((chat: any) => {
-            const isCohortChat = chat.cohortId !== undefined;
+            const isCohortChat = chat.cohortId !== null;
             const receiverId = chat.receiver?.id || chat.sender?.id;
-            const roomId = isCohortChat ? chat.cohortId : generateRoomId(currentUserId, chat.receiver?.id || chat.sender?.id);
+            const roomId = isCohortChat ? chat.cohortId : generateRoomId(currentUserId, receiverId);
             const encodedSenderId = encodeId(currentUserId);
             const encodedReceiverId = encodeId(receiverId);
             const isOnline = onlineUsers[receiverId];
@@ -123,7 +120,7 @@ const Chats = () => {
                   href={{
                     pathname: `/dashboard/chat/${roomId}`,
                     query: {
-                      name: chat.receiver?.firstName || chat.sender?.firstName,
+                      name: isCohortChat ? chat.cohort?.name : chat.receiver?.firstName || chat.sender?.firstName,
                       encodedSenderId,
                       encodedReceiverId,
                       roomId,
@@ -143,7 +140,7 @@ const Chats = () => {
                     <div className="flex justify-between mb-1">
                       <div className="flex gap-1">
                         <p className="text-black text-sm font-bold">
-                          {chat.receiver?.firstName || chat.sender?.firstName || chat.cohort?.name}
+                          {isCohortChat ? chat.cohort?.name : chat.receiver?.firstName || chat.sender?.firstName}
                         </p>
                         <p className="text-black text-sm font-semibold">
                           {chat.lastName}

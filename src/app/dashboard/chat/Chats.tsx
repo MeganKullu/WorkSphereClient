@@ -110,7 +110,7 @@ const Chats = () => {
             const isOnline = onlineUsers[receiverId];
             return (
               <motion.div
-                key={chat.id}
+                key={chat.id || chat.cohortId}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}

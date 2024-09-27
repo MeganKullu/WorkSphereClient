@@ -119,11 +119,13 @@ const ChatRoom = ({
   const sendMessage = () => {
     if (!newMessage.trim()) return;
 
+    const isCohortChat = !roomId.includes('_'); 
+
     const messageData: Message = {
       senderId, // will be the id of the current logged in user
-      receiverId: null, // No specific receiver for cohort messages
+      receiverId: isCohortChat ? null : receiverId, // Set receiverId for direct messages
       content: newMessage,
-      cohortId: roomId, // Use roomId as cohortId for cohort messages
+      cohortId: isCohortChat ? roomId : null, // Use roomId as cohortId for cohort messages
       sendAt: new Date().toISOString(),
       delivered: false,
       read: false,
@@ -136,6 +138,7 @@ const ChatRoom = ({
     });
 
     socket.emit("send_message", messageData);
+    console.log("Message sent:", messageData);
     setNewMessage("");
     scrollToBottom();
   };

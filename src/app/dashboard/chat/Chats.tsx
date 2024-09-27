@@ -37,7 +37,7 @@ const Chats = () => {
   const fetchRecentChats = async (currentUserId: string | null) => {
     try {
       const response = await fetch(
-        `http://localhost:3002/api/messages/recent/${currentUserId}`,
+        `https://workspherebackend.onrender.com/api/messages/recent/${currentUserId}`,
         {
           method: "GET",
           headers: {

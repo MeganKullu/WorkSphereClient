@@ -33,10 +33,10 @@ const ChatDetail = ({ params }: { params: { roomId: string } }) => {
       let url;
       if (roomId.includes('_')) {
         // Fetch messages between users
-        url = `http://localhost:3002/api/messages/users/${senderId}/${receiverId}?page=${page}&limit=${limit}`;
+        url = `https://workspherebackend.onrender.com/api/messages/users/${senderId}/${receiverId}?page=${page}&limit=${limit}`;
       } else {
         // Fetch messages for a cohort
-        url = `http://localhost:3002/api/messages/cohort/${roomId}?page=${page}&limit=${limit}`;
+        url = `https://workspherebackend.onrender.com/api/messages/cohort/${roomId}?page=${page}&limit=${limit}`;
       }
 
       const response = await fetch(url);
@@ -58,10 +58,10 @@ const ChatDetail = ({ params }: { params: { roomId: string } }) => {
       let url;
       if (roomId.includes('_')) {
         // Fetch files between users
-        url = `http://localhost:3002/api/files/${senderId}/${receiverId}`;
+        url = `https://workspherebackend.onrender.com/api/files/${senderId}/${receiverId}`;
       } else {
         // Fetch files for a cohort
-        url = `http://localhost:3002/api/files/cohort/${roomId}`;
+        url = `https://workspherebackend.onrender.com/api/files/cohort/${roomId}`;
       }
 
       const response = await fetch(url);

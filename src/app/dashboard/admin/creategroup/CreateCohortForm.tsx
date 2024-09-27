@@ -32,7 +32,7 @@ const CreateCohortForm: React.FC<CreateCohortFormProps> = ({
       try {
         const userId = sessionStorage.getItem("userId");
         const response = await fetch(
-          `http://localhost:3002/api/users?currentUserId=${userId}`,
+          `https://workspherebackend.onrender.com/api/users?currentUserId=${userId}`,
           {
             method: "GET",
             headers: {
@@ -62,7 +62,7 @@ const CreateCohortForm: React.FC<CreateCohortFormProps> = ({
     event.preventDefault();
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:3002/api/cohort/create", {
+      const response = await fetch("https://workspherebackend.onrender.com/api/cohort/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

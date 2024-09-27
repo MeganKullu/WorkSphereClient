@@ -1,6 +1,6 @@
 // lib/auth.js
 export async function verifyCredentials({ phone, password }: { phone: string, password: string }) {
-    const response = await fetch("http://localhost:3002/api/auth/login", {
+    const response = await fetch("https://workspherebackend.onrender.com/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

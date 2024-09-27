@@ -6,7 +6,7 @@ const page = () => {
     //we will also set the auth token and validate it on the dashboard page
     "use server";
     const { phone, password } = data;
-    const response = await fetch("http://localhost:3002/api/auth/login", {
+    const response = await fetch("https://workspherebackend.onrender.com/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

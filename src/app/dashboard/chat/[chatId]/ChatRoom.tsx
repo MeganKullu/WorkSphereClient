@@ -160,7 +160,7 @@ const ChatRoom = ({
       //formData.append("cohortId", cohortId || ""); we will have to figure this for groups
 
       try {
-        const response = await fetch("http://localhost:3002/api/files/upload", {
+        const response = await fetch("https://workspherebackend.onrender.com/api/files/upload", {
           method: "POST",
           body: formData,
         });
@@ -237,19 +237,19 @@ const ChatRoom = ({
                   {message.fileType ? (
                     message.fileType.startsWith("image/") ? (
                       <img
-                        src={`http://localhost:3002/${message.filePath}`}
+                        src={`https://workspherebackend.onrender.com/${message.filePath}`}
                         alt={message.content}
                         className="w-32 h-32 object-cover rounded-lg"
                         onClick={() =>
                           handleImageClick(
-                            `http://localhost:3002/${message.filePath}`
+                            `https://workspherebackend.onrender.com/${message.filePath}`
                           )
                         }
                       />
                     ) : (
                       <div className="flex flex-row-reverse justify-between items-center mb-1 gap-4">
                         <a
-                          href={`http://localhost:3002/${message.filePath}`}
+                          href={`https://workspherebackend.onrender.com/${message.filePath}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="basis-1/5"

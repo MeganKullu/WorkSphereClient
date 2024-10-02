@@ -6,18 +6,17 @@ const page = () => {
     //we will also set the auth token and validate it on the dashboard page
     "use server";
     const { phone, password } = data;
-    const response = await fetch("https://workspherebackend.onrender.com/api/auth/login", {
+    const response = await fetch("http://localhost:3002/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ phone, password }),
     });
-    
-  
+     
     const loginData = await response.json();
-    return { id: loginData.userId , role: loginData.userRole, name: loginData.user }; ;
-    
+    console.log("loginData", loginData);
+    return { id: loginData.userId , role: loginData.userRole, name: loginData.user };   
   };
 
   return <Login onSubmit={onsubmit} />;

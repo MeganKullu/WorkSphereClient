@@ -1,8 +1,12 @@
+
+"use client";
 import Search from "./Search";
 import Chats from "./Chats";
+import useUserStore from "@/stores/user/UseUserStore";
 
 const ChatLayout = ({ children }: { children: React.ReactNode }) => {
   //here we will handle getting all the current active chats and the search
+  const userId = useUserStore((state) => state.userId);
 
   return (
     <div className="flex h-full">
@@ -12,7 +16,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
         <div className="text-black font-semibold text-2xl">Chats</div>
         <div className="flex-grow overflow-y-auto mt-2">
-          <Chats />
+          <Chats userId={userId}/>
         </div>
       </div>
       <div className="w-3/4">{children}</div>

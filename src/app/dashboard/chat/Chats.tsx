@@ -1,3 +1,6 @@
+// here we will map over  all over the chats and and a on click function that will update the chat window
+// we will use the active buttons to show the active chat
+// remember to encode the room ids then decode them later
 "use client";
 
 import Link from "next/link";
@@ -7,8 +10,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import useUserStore from "@/stores/user/UseUserStore";
 import useChatStore from "@/stores/chat/useChatStore";
 
-const Chats = () => {
-  const userId = useUserStore((state) => state.userId);
+const Chats = ({ userId }: { userId: string | null}) => {
+
   const {
     socket,
     setRoomMessages,
@@ -37,7 +40,7 @@ const Chats = () => {
   const fetchRecentChats = async (currentUserId: string | null) => {
     try {
       const response = await fetch(
-        `https://workspherebackend.onrender.com/api/messages/recent/${currentUserId}`,
+        `http://localhost:3002/api/messages/recent/${currentUserId}`,
         {
           method: "GET",
           headers: {
@@ -59,7 +62,6 @@ const Chats = () => {
 
       setChats(sortedChats);
       setRecentChats(sortedChats);
-
       console.log("Recent chats:", sortedChats);
     } catch (error) {
       console.error("Failed to fetch recent chats:", error);
@@ -89,29 +91,33 @@ const Chats = () => {
       socket.off("user_online");
       socket.off("user_offline");
     };
-  }, [
-    socket,
-    setRoomMessages,
-    addMessage,
-    fetchRecentChats,
-    updateUserStatus,
-    currentUserId,
-  ]);
+  },[]);
+  
+
+  // Add these later to the dependencies
+  // [
+  //   socket,
+  //   setRoomMessages,
+  //   addMessage,
+  //   fetchRecentChats,
+  //   updateUserStatus,
+  //   currentUserId,
+  // ]
 
   return (
     <div className="h-full overflow-y-auto">
       <AnimatePresence>
         {recentChats &&
           recentChats.map((chat: any) => {
-            const isCohortChat = chat.cohortId !== null;
+            const isCohortChat = chat.cohortId !== undefined;
             const receiverId = chat.receiver?.id || chat.sender?.id;
-            const roomId = isCohortChat ? chat.cohortId : generateRoomId(currentUserId, receiverId);
+            const roomId = isCohortChat ? chat.cohortId : generateRoomId(currentUserId, chat.receiver?.id || chat.sender?.id);
             const encodedSenderId = encodeId(currentUserId);
             const encodedReceiverId = encodeId(receiverId);
             const isOnline = onlineUsers[receiverId];
             return (
               <motion.div
-                key={chat.id || chat.cohortId}
+                key={chat.cohord ? chat.cohortId : chat.receiver?.id || chat.sender?.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
@@ -121,7 +127,7 @@ const Chats = () => {
                   href={{
                     pathname: `/dashboard/chat/${roomId}`,
                     query: {
-                      name: isCohortChat ? chat.cohort?.name : chat.receiver?.firstName || chat.sender?.firstName,
+                      name: chat.receiver?.firstName || chat.sender?.firstName,
                       encodedSenderId,
                       encodedReceiverId,
                       roomId,
@@ -141,7 +147,7 @@ const Chats = () => {
                     <div className="flex justify-between mb-1">
                       <div className="flex gap-1">
                         <p className="text-black text-sm font-bold">
-                          {isCohortChat ? chat.cohort?.name : chat.receiver?.firstName || chat.sender?.firstName}
+                          {chat.receiver?.firstName || chat.sender?.firstName || chat.cohort?.name}
                         </p>
                         <p className="text-black text-sm font-semibold">
                           {chat.lastName}

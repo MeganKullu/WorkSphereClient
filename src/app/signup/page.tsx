@@ -4,7 +4,7 @@ const onSubmit = async (data: FormData) => {
   // we send the data to the back end
   "use server";
   const { firstName, lastName, email, password, role, phone, adminCode } = data;
-  const response = await fetch(`https://workspherebackend.onrender.com/api/auth/signup`, {
+  const response = await fetch(`http://localhost:3002/api/auth/signup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

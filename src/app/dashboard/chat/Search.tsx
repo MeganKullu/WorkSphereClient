@@ -37,7 +37,7 @@ const Search = () => {
     try {
       console.log("Trying search");
       const response = await fetch(
-        `https://workspherebackend.onrender.com/api/users/search?q=${query}&currentUserId=${currentUserId}`,
+        `http://localhost:3002/api/users/search?q=${query}&currentUserId=${currentUserId}`,
         {
           method: "GET",
           headers: {

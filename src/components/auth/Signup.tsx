@@ -1,5 +1,5 @@
 "use client";
-
+import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { useState, useContext } from "react";
 import { useRouter } from "next/navigation";
@@ -14,7 +14,6 @@ const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>("");
-  const setUserId = useUserStore((state: any) => state.setUserId);
   const router = useRouter();
 
   const {
@@ -25,17 +24,24 @@ const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
 
   const handleFormSubmit = async (data: FormData) => {
     setLoading(true);
-    await onSubmit(data)
-      .then(({ id, role }: { id: string; role: string }) => {
-        setUserId(id);
-        const isAdmin = role === "ADMIN";
-        sessionStorage.setItem("isAdmin", JSON.stringify(isAdmin));
-        useUserStore.getState().setIsAdmin(isAdmin);
-        setLoading(false);
-      })
-      .then(() => {
-        router.push("/dashboard/chat");
-      });
+    const result = await signIn("credentials", {
+      phone: data.phone,
+      password: data.password,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      role: data.role,
+      adminCode: data.adminCode,
+      action: 'signup',
+      redirect: false,
+    });
+
+    if (result?.error) {
+      console.error(result.error);
+      setLoading(false);
+    } else {
+      router.push("/dashboard/chat");
+    }
   };
 
   return (

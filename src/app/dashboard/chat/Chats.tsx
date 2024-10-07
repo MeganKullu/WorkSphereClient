@@ -5,12 +5,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import useUserStore from "@/stores/user/UseUserStore";
 import useChatStore from "@/stores/chat/useChatStore";
 
-const Chats = ({ userId }: { userId: string | null}) => {
+const Chats = ({ userId }: { userId: string | undefined }) => {
 
   const {
     socket,
@@ -25,19 +24,24 @@ const Chats = ({ userId }: { userId: string | null}) => {
   const currentUserId = userId;
 
   // Utility function to encode IDs
-  const encodeId = (id: string | null) => {
+  const encodeId = (id: string | null | undefined) => {
     return id ? Buffer.from(id).toString("base64") : "";
   };
 
   // Generate the room ID
-  const generateRoomId = (userId1: string | null, userId2: string) => {
-    const [first, second] = [userId1?.toString(), userId2.toString()].sort();
+  const generateRoomId = (userId1: string | null | undefined, userId2: string | null | undefined) => {
+    if (!userId1 || !userId2) {
+      console.error("Invalid user IDs for room generation:", userId1, userId2);
+      return null;
+    }
+    const [first, second] = [userId1, userId2].sort();
     return `${first}_${second}`;
   };
 
   const pathname = usePathname();
 
-  const fetchRecentChats = async (currentUserId: string | null) => {
+  const fetchRecentChats = useCallback(async (currentUserId: string | null | undefined) => {
+    if (!currentUserId) return;
     try {
       const response = await fetch(
         `http://localhost:3002/api/messages/recent/${currentUserId}`,
@@ -66,11 +70,15 @@ const Chats = ({ userId }: { userId: string | null}) => {
     } catch (error) {
       console.error("Failed to fetch recent chats:", error);
     }
-  };
+  }, [setRecentChats]);
 
   useEffect(() => {
-    fetchRecentChats(currentUserId);
+    if (currentUserId) {
+      fetchRecentChats(currentUserId);
+    }
+  }, [currentUserId, fetchRecentChats]);
 
+  useEffect(() => {
     // Listen for new messages
     socket.on("newMessage", (roomId: string, message: string) => {
       addMessage(roomId, message);
@@ -91,33 +99,29 @@ const Chats = ({ userId }: { userId: string | null}) => {
       socket.off("user_online");
       socket.off("user_offline");
     };
-  },[]);
-  
+  }, [socket, addMessage, updateUserStatus]);
 
-  // Add these later to the dependencies
-  // [
-  //   socket,
-  //   setRoomMessages,
-  //   addMessage,
-  //   fetchRecentChats,
-  //   updateUserStatus,
-  //   currentUserId,
-  // ]
 
   return (
     <div className="h-full overflow-y-auto">
+      {/* getting meesges between users in now fetching the same id we need to check on that */}
       <AnimatePresence>
         {recentChats &&
           recentChats.map((chat: any) => {
-            const isCohortChat = chat.cohortId !== undefined;
-            const receiverId = chat.receiver?.id || chat.sender?.id;
-            const roomId = isCohortChat ? chat.cohortId : generateRoomId(currentUserId, chat.receiver?.id || chat.sender?.id);
+            const isCohortChat = chat.cohortId !== null;
+            const otherUser =
+              chat.sender?.id === currentUserId ? chat.receiver : chat.sender;
+            console.log("otherUser", otherUser);
+            const roomId = isCohortChat
+              ? chat.cohortId
+              : generateRoomId(currentUserId, otherUser.id);
             const encodedSenderId = encodeId(currentUserId);
-            const encodedReceiverId = encodeId(receiverId);
-            const isOnline = onlineUsers[receiverId];
+            const encodedReceiverId = encodeId(otherUser.id);
+            const isOnline = onlineUsers[otherUser.status];
+
             return (
               <motion.div
-                key={chat.cohord ? chat.cohortId : chat.receiver?.id || chat.sender?.id}
+                key={isCohortChat ? chat.cohortId : chat.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
@@ -127,7 +131,7 @@ const Chats = ({ userId }: { userId: string | null}) => {
                   href={{
                     pathname: `/dashboard/chat/${roomId}`,
                     query: {
-                      name: chat.receiver?.firstName || chat.sender?.firstName,
+                      name: otherUser.firstName, // we need to correct this such that the name is not the current users name and oly either the other party whocould be the sender or the receiver
                       encodedSenderId,
                       encodedReceiverId,
                       roomId,
@@ -147,10 +151,11 @@ const Chats = ({ userId }: { userId: string | null}) => {
                     <div className="flex justify-between mb-1">
                       <div className="flex gap-1">
                         <p className="text-black text-sm font-bold">
-                          {chat.receiver?.firstName || chat.sender?.firstName || chat.cohort?.name}
+                          {otherUser.firstName}
+                          {/* also here we need to add the appropriate chat name  */}
                         </p>
                         <p className="text-black text-sm font-semibold">
-                          {chat.lastName}
+                          {otherUser.lastName}
                         </p>
                       </div>
                       <p className="text-gray-400 text-xs">

@@ -1,9 +1,7 @@
 "use client";
-
-import useUserStore from "@/stores/user/UseUserStore";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { stringify } from "querystring";
-import { useState, useEffect, useContext } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 //add show password feature here
@@ -13,9 +11,6 @@ import { useForm } from "react-hook-form";
 const Login: React.FC<LoginProps> = ({ onSubmit }) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const setUserId = useUserStore((state: any) => state.setUserId);
-  const userId = useUserStore((state: any) => state.userId);
-  const isAdmin = useUserStore((state: any) => state.isAdmin);
   const router = useRouter();
  
   const {
@@ -26,22 +21,21 @@ const Login: React.FC<LoginProps> = ({ onSubmit }) => {
 
   const handleFormSubmit = async (data: LoginFormData) => {
     setLoading(true);
-    await onSubmit(data)
-      .then(({id, role, name}: { id: string, role: string, name: string}) => {
-       setUserId(id);
-       const isAdmin = role === "ADMIN";
-       sessionStorage.setItem("isAdmin", JSON.stringify(isAdmin));
-       useUserStore.getState().setIsAdmin(isAdmin);
-       setLoading(false);
-       
-      }).then(() => {
-        router.push("/dashboard/chat");
-      });
-  };
 
-  useEffect(() => {
-    console.log("User ID from store:", userId); // Log the userId from the store
-  }, []);
+    const result = await signIn("credentials", {
+      phone: data.phone,
+      password: data.password,
+      action: 'signin',
+      redirect: false,
+    });
+
+    if (result?.error) {
+      console.log(result.error);
+      setLoading(false);
+    } else {
+      router.push("/dashboard/chat");
+    }   
+  };
 
   return (
     <div className="flex justify-center items-center h-screen w-full">

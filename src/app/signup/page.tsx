@@ -8,7 +8,6 @@ const onSubmit = async (data: FormData) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      // "ngrok-skip-browser-warning": "true",
     },
     body: JSON.stringify({ firstName, lastName, email, password, role, phone, adminCode}),
   });

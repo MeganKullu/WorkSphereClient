@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   HiOutlineLink,
   HiOutlineArrowCircleRight,
@@ -9,6 +9,7 @@ import {
 import useChatStore from "@/stores/chat/useChatStore";
 import FileModal from "./FileModal";
 import ImageModal from "./ImageModal";
+import { useSession } from "next-auth/react";
 
 const ChatRoom = ({
   senderId,
@@ -39,6 +40,7 @@ const ChatRoom = ({
   const [isFileUploading, setIsFileUploading] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false); // State for image modal
   const [imageUrl, setImageUrl] = useState("");
+  const { data: session } = useSession();
 
   useEffect(() => {
     const room_id = roomId;
@@ -116,32 +118,24 @@ const ChatRoom = ({
     }
   };
 
-  const sendMessage = () => {
-    if (!newMessage.trim()) return;
+  const sendMessage = useCallback(() => {
+    if (!newMessage.trim() || !session?.user?.id) return;
 
-    const isCohortChat = !roomId.includes('_'); 
-
-    const messageData: Message = {
-      senderId, // will be the id of the current logged in user
-      receiverId: isCohortChat ? null : receiverId, // Set receiverId for direct messages
+    const messageData = {
+      id: Date.now().toString(), // or use a proper unique ID generator
+      senderId: session.user.id,
+      receiverId: receiverId,
       content: newMessage,
-      cohortId: isCohortChat ? roomId : null, // Use roomId as cohortId for cohort messages
-      sendAt: new Date().toISOString(),
-      delivered: false,
-      read: false,
+      sentAt: new Date().toISOString(),
     };
 
-    addMessage(roomId, {
-      ...messageData,
-      id: Date.now().toString(),
-      sendAt: new Date().toISOString(),
-    });
-
     socket.emit("send_message", messageData);
-    console.log("Message sent:", messageData);
+    
+    addMessage(roomId, messageData, session.user.id);
     setNewMessage("");
     scrollToBottom();
-  };
+  }, [newMessage, roomId, receiverId, session?.user?.id, addMessage]);
+   
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {

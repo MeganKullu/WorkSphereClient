@@ -3,40 +3,48 @@ import io from 'socket.io-client';
 
 const socket = io(`http://localhost:3002`);
 
-const useChatStore = create((set) => ({
+const useChatStore = create((set, get) => ({
   messages: {},
   recentChats: [],
-  onlineUsers: {}, // State for online status
+  onlineUsers: {},
   socket,
+
   setRecentChats: (chats) => set({ recentChats: chats }),
-  addMessage: (roomId, message) => set((state) => {
+
+  addMessage: (roomId, message, currentUserId) => set((state) => {
     const updatedMessages = {
       ...state.messages,
       [roomId]: [...(state.messages[roomId] || []), message],
     };
 
-    // Find the chat in recentChats
-    const chatIndex = state.recentChats.findIndex(chat => chat.roomId === roomId);
+    const chatIndex = state.recentChats.findIndex(chat => 
+      chat.cohortId === roomId || 
+      (chat.sender.id === currentUserId && chat.receiver.id === message.senderId) ||
+      (chat.receiver.id === currentUserId && chat.sender.id === message.senderId)
+    );
+
     let updatedRecentChats;
 
     if (chatIndex !== -1) {
-      // Update the existing chat
+      // Update existing chat
       const updatedChat = {
         ...state.recentChats[chatIndex],
         lastMessage: message,
-        unread: true,
+        unread: message.senderId !== currentUserId,
       };
       updatedRecentChats = [
         updatedChat,
-        ...state.recentChats.filter(chat => chat.roomId !== roomId),
+        ...state.recentChats.filter((_, index) => index !== chatIndex),
       ];
     } else {
-      // Add a new chat
+      // Add new chat
       const newChat = {
-        roomId,
+        id: roomId,
+        cohortId: message.cohortId,
         lastMessage: message,
-        unread: true,
-        receiver: { id: roomId.split('_').find(id => id !== state.userId) }, // Assuming userId is available in state
+        unread: message.senderId !== currentUserId,
+        sender: { id: message.senderId },
+        receiver: { id: message.receiverId },
       };
       updatedRecentChats = [newChat, ...state.recentChats];
     }
@@ -46,12 +54,14 @@ const useChatStore = create((set) => ({
       recentChats: updatedRecentChats,
     };
   }),
+
   setRoomMessages: (roomId, newMessages) => set((state) => ({
     messages: {
       ...state.messages,
       [roomId]: newMessages,
     },
   })),
+
   updateUserStatus: (userId, isOnline) => set((state) => ({
     onlineUsers: {
       ...state.onlineUsers,

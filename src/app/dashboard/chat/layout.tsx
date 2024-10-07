@@ -2,11 +2,13 @@
 "use client";
 import Search from "./Search";
 import Chats from "./Chats";
-import useUserStore from "@/stores/user/UseUserStore";
+import { useSession } from "next-auth/react";
 
 const ChatLayout = ({ children }: { children: React.ReactNode }) => {
-  //here we will handle getting all the current active chats and the search
-  const userId = useUserStore((state) => state.userId);
+
+  const { data: session } = useSession();
+
+  const userId = session?.user.id;
 
   return (
     <div className="flex h-full">

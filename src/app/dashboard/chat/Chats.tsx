@@ -80,9 +80,50 @@ const Chats = ({ userId }: { userId: string | undefined }) => {
 
   useEffect(() => {
     // Listen for new messages
-    socket.on("newMessage", (roomId: string, message: string) => {
+    // socket.on("newMessage", (roomId: string, message: string) => {
+    //   addMessage(roomId, message);
+    // });
+
+    socket.on("newMessage", (roomId: string, message: any) => {
       addMessage(roomId, message);
+      // Update recentChats to include the new message
+      setRecentChats((prevChats: any) => {
+        const chatIndex = prevChats.findIndex((chat: { roomId: string; }) => chat.roomId === roomId);
+        
+        let updatedChats;
+        if (chatIndex !== -1) {
+          // Update the existing chat with the new message
+          const updatedChat = {
+            ...prevChats[chatIndex],
+            lastMessage: message,
+            lastMessageSentAt: new Date().toISOString(),
+          };
+
+          // Create a new array with the updated chat at the correct index
+          updatedChats = [
+            ...prevChats.slice(0, chatIndex),
+            updatedChat,
+            ...prevChats.slice(chatIndex + 1),
+          ];
+        } else {
+          // If the chat doesn't exist, add it as a new chat
+          const newChat = {
+            roomId,
+            lastMessage: message,
+            lastMessageSentAt: new Date().toISOString(),
+          };
+          updatedChats = [newChat, ...prevChats];
+        }
+
+        // Sort chats: unread messages first, then by latest message timestamp
+        return updatedChats.sort((a, b) => {
+          if (a.unread && !b.unread) return -1;
+          if (!a.unread && b.unread) return 1;
+          return new Date(b.lastMessageSentAt).getTime() - new Date(a.lastMessageSentAt).getTime();
+        });
+      });
     });
+
 
     // Listen for online status
     socket.on("user_online", (userId: string) => {
@@ -105,13 +146,32 @@ const Chats = ({ userId }: { userId: string | undefined }) => {
   return (
     <div className="h-full overflow-y-auto">
       {/* getting meesges between users in now fetching the same id we need to check on that */}
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {recentChats &&
           recentChats.map((chat: any) => {
             const isCohortChat = chat.cohortId !== null;
-            const otherUser =
-              chat.sender?.id === currentUserId ? chat.receiver : chat.sender;
-            console.log("otherUser", otherUser);
+          
+             
+            let otherUser;
+            
+            if (isCohortChat) {
+              // For cohort chats, you can set otherUser based on cohort details
+              otherUser = {
+                id: chat.cohortId, // Use cohortId as the ID
+                firstName: chat.cohort?.name || "Cohort", // Fallback name if cohort name is not available
+                lastName: "", // Cohorts may not have a last name
+                // Add any other necessary properties
+              };
+            } else {
+              // For one-on-one chats, determine the other user based on sender/receiver
+              otherUser = chat.sender?.id === currentUserId ? chat.receiver : chat.sender;
+            }
+        
+            // Ensure otherUser is not null
+            if (!otherUser) {
+              console.warn("Other user is null for chat:", chat);
+              return null; // Skip rendering this chat if otherUser is null
+            }
             const roomId = isCohortChat
               ? chat.cohortId
               : generateRoomId(currentUserId, otherUser.id);
@@ -119,9 +179,13 @@ const Chats = ({ userId }: { userId: string | undefined }) => {
             const encodedReceiverId = encodeId(otherUser.id);
             const isOnline = onlineUsers[otherUser.status];
 
+            //Create a unique key using a combination of the roomId and the otherUser.id
+            const uniqueKey = `${roomId}-${chat.lastMessage.sentAt}`;
+
             return (
               <motion.div
-                key={isCohortChat ? chat.cohortId : chat.id}
+                key={uniqueKey}
+                layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
@@ -131,7 +195,7 @@ const Chats = ({ userId }: { userId: string | undefined }) => {
                   href={{
                     pathname: `/dashboard/chat/${roomId}`,
                     query: {
-                      name: otherUser.firstName, // we need to correct this such that the name is not the current users name and oly either the other party whocould be the sender or the receiver
+                      name: isCohortChat ? chat.cohort?.name : otherUser.firstName, // we need to correct this such that the name is not the current users name and oly either the other party whocould be the sender or the receiver
                       encodedSenderId,
                       encodedReceiverId,
                       roomId,

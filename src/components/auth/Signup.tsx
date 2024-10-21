@@ -10,7 +10,7 @@ import useUserStore from "@/stores/user/UseUserStore";
 //we need to encrypt the password
 //add toast for successful signup and login
 
-const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
+const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>("");
@@ -40,7 +40,13 @@ const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
       console.error(result.error);
       setLoading(false);
     } else {
-      router.push("/dashboard/chat");
+      // Check if the result contains user data
+      if (result?.ok) {
+        router.push("/dashboard/chat");
+      } else {
+        console.error("Sign up failed:", result);
+        setLoading(false);
+      }
     }
   };
 

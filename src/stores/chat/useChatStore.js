@@ -19,6 +19,7 @@ const useChatStore = create((set, get) => ({
 
     const chatIndex = state.recentChats.findIndex(chat => 
       chat.cohortId === roomId || 
+      chat.id === roomId ||
       (chat.sender.id === currentUserId && chat.receiver.id === message.senderId) ||
       (chat.receiver.id === currentUserId && chat.sender.id === message.senderId)
     );
@@ -34,7 +35,8 @@ const useChatStore = create((set, get) => ({
       };
       updatedRecentChats = [
         updatedChat,
-        ...state.recentChats.filter((_, index) => index !== chatIndex),
+        ...state.recentChats.slice(0, chatIndex),
+        ...state.recentChats.slice(chatIndex + 1),
       ];
     } else {
       // Add new chat
@@ -68,6 +70,41 @@ const useChatStore = create((set, get) => ({
       [userId]: isOnline,
     },
   })),
+
+  markChatAsRead: (roomId, currentUserId) => set((state) => {
+    const chatIndex = state.recentChats.findIndex(chat => 
+      chat.cohortId === roomId || chat.id === roomId
+    );
+
+    if (chatIndex === -1) return state;
+
+    const updatedChat = {
+      ...state.recentChats[chatIndex],
+      unread: false,
+    };
+
+    const updatedRecentChats = [
+      ...state.recentChats.slice(0, chatIndex),
+      updatedChat,
+      ...state.recentChats.slice(chatIndex + 1),
+    ];
+
+    return { recentChats: updatedRecentChats };
+  }),
+
+  clearUnreadStatus: (roomId) => set((state) => {
+    const updatedMessages = state.messages[roomId]?.map(msg => ({
+      ...msg,
+      read: true
+    })) || [];
+
+    return {
+      messages: {
+        ...state.messages,
+        [roomId]: updatedMessages,
+      },
+    };
+  }),
 }));
 
 export default useChatStore;

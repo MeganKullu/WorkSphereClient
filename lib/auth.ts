@@ -60,12 +60,15 @@ export const authOptions: NextAuthOptions = {
               email: (credentials as any).email,
               role: (credentials as any).role,
               adminCode: (credentials as any).adminCode,
-            } : {}),
+            } : {
+
+            }),
           }),
         });
 
         if (response.status === 200) {
           const userData = await response.json();
+          console.log("userData", userData);
           return { 
             id: userData.userId || userData.newUser.id, 
             name: userData.userName || `${userData.newUser.firstName} ${userData.newUser.lastName}`, 

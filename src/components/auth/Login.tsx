@@ -8,11 +8,11 @@ import { useForm } from "react-hook-form";
 //add a remember password feature we will use loacl storage in json web token
 //we need to encrypt the password
 
-const Login: React.FC<LoginProps> = ({ onSubmit }) => {
+const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
- 
+
   const {
     register,
     handleSubmit,
@@ -25,16 +25,24 @@ const Login: React.FC<LoginProps> = ({ onSubmit }) => {
     const result = await signIn("credentials", {
       phone: data.phone,
       password: data.password,
-      action: 'signin',
+      action: 'login',
       redirect: false,
     });
+
+    console.log("result", result);
 
     if (result?.error) {
       console.log(result.error);
       setLoading(false);
     } else {
-      router.push("/dashboard/chat");
-    }   
+      // Check if the result contains user data
+      if (result?.ok) {
+        router.push("/dashboard/chat");
+      } else {
+        console.error("Login failed:", result);
+        setLoading(false);
+      }
+    }
   };
 
   return (
